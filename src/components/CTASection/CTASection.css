@@ -1,0 +1,86 @@
+.cta-section {
+  padding: var(--section-padding);
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta__orb { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+.cta__orb--1 { width: 520px; height: 520px; background: radial-gradient(circle, rgba(13, 148, 136, 0.14), transparent 65%); top: -200px; left: -100px; }
+.cta__orb--2 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(5, 150, 105, 0.1), transparent 65%); bottom: -150px; right: -100px; }
+
+.cta__inner {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center;
+}
+
+.cta__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800; line-height: 1.2;
+  color: var(--text-primary);
+  margin: 16px 0 20px;
+}
+
+.cta__desc { font-size: 1rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 36px; max-width: 480px; }
+
+.cta__benefits { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+
+.cta__benefit {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 18px;
+  background: white; border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 8px rgba(13, 148, 136, 0.06);
+  transition: var(--transition);
+}
+
+.cta__benefit:hover { border-color: var(--border-bright); box-shadow: 0 4px 20px rgba(13, 148, 136, 0.13); transform: translateY(-2px); }
+
+.cta__benefit-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+.cta__benefit-title { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.cta__benefit-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+
+.cta__actions { display: flex; flex-wrap: wrap; gap: 14px; }
+.cta__btn-primary { font-size: 1rem; padding: 15px 32px; }
+
+.cta__card { padding: 32px; }
+
+.cta__card-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 28px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cta__header-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; }
+.cta__card-title { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.cta__card-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+.cta__value-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+.cta__value-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.875rem; color: var(--text-secondary);
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.cta__value-item:hover { background: rgba(13, 148, 136, 0.05); color: var(--text-primary); }
+.cta__value-check { font-size: 0.85rem; flex-shrink: 0; }
+
+.cta__card-footer { border-top: 1px solid var(--border); padding-top: 20px; }
+.cta__roles { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+
+.cta__role-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.78rem; font-weight: 600;
+  padding: 6px 14px; border-radius: 100px;
+  transition: var(--transition);
+}
+
+.cta__role-pill--admin { background: rgba(13, 148, 136, 0.1); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.25); }
+.cta__role-pill--employee { background: rgba(5, 150, 105, 0.08); color: #059669; border: 1px solid rgba(5, 150, 105, 0.22); }
+.cta__card-note { font-size: 0.72rem; color: var(--text-muted); }
+
+@media (max-width: 900px) { .cta__inner { grid-template-columns: 1fr; } }
