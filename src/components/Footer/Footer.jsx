@@ -45,7 +45,7 @@ export default function Footer() {
 
         <div className="footer__bottom">
           <p className="footer__copy">
-            &copy; {new Date().getFullYear()} QuestionHub. Internal Interview Preparation Platform.
+            &copy; {new Date().getFullYear()} QuestionHub. Interview Preparation Platform. All rights reserved.
           </p>
         </div>
       </div>

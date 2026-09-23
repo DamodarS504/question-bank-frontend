@@ -7,7 +7,7 @@ export const ADMIN_STEPS = [
   {
     step: '01',
     title: 'Login as Admin',
-    desc: 'Authenticate securely with your admin credentials. JWT token is issued and stored for session management.',
+    desc: 'Authenticate securely with your admin credentials to access your dedicated management portal.',
     icon: '🔐',
   },
   {

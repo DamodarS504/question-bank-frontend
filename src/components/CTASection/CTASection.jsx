@@ -55,7 +55,7 @@ export default function CTASection() {
               <div className="cta__header-icon">🚀</div>
               <div>
                 <h3 className="cta__card-title">Everything in One Platform</h3>
-                <p className="cta__card-sub">Designed for internal interview preparation teams</p>
+                <p className="cta__card-sub">Designed for modern interview preparation teams</p>
               </div>
             </div>
 

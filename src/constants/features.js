@@ -22,7 +22,7 @@ export const FEATURES = [
     color: '#059669',
     title: 'Role-Based Access',
     description:
-      'Two distinct roles — Admin and Employee. Admins manage everything; employees access only what\'s assigned to them.',
+      'Two distinct roles — Admin and Employee. Admins manage questions and assignments; employees focus on their personalized preparation track.',
   },
   {
     id: 'feature-excel-upload',
@@ -57,13 +57,13 @@ export const FEATURES = [
       'Track preparation completion percentage per employee. Admins see real-time dashboards; employees see their personal progress at a glance.',
   },
   {
-    id: 'feature-secure-access',
-    icon: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-           <path d="M7 11V7a5 5 0 0110 0v4"/>
-           <circle cx="12" cy="16" r="1" fill="currentColor"/>`,
+    id: 'feature-targeted-assignments',
+    icon: `<circle cx="12" cy="12" r="10"/>
+           <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+           <circle cx="12" cy="12" r="3"/>`,
     color: '#8b5cf6',
-    title: 'Secure Access',
+    title: 'Targeted Assignments',
     description:
-      'Role-based login ensures every user sees only what they need. Admins and employees have completely separate, protected experiences.',
+      'Admins can assign specific question sets tailored to individual employees based on their upcoming interview requirements.',
   },
 ];

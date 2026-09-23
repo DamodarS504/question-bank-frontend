@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useLoginMutation, getApiErrorMessage } from '../features/auth/authApi';
+import { setCredentials } from '../features/auth/authSlice';
 import './AuthPages.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const validate = () => {
     const e = {};
@@ -21,19 +25,23 @@ export default function LoginPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[name] || errors.form) {
+      setErrors((prev) => ({ ...prev, [name]: '', form: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setIsLoading(true);
-    // TODO: replace with real API call
-    // The backend will return the user role (admin/employee) and redirect accordingly
-    await new Promise((r) => setTimeout(r, 1400));
-    setIsLoading(false);
-    navigate('/');
+    setErrors({});
+    try {
+      const response = await login(form).unwrap();
+      dispatch(setCredentials(response));
+      navigate('/dashboard');
+    } catch (error) {
+      setErrors({ form: getApiErrorMessage(error) });
+    }
   };
 
   return (
@@ -115,6 +123,15 @@ export default function LoginPage() {
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate id="login-form">
+            {errors.form && (
+              <div id="login-error" className="auth-form-alert" role="alert" aria-live="assertive">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 9v4M12 17h.01" />
+                  <path d="M10.3 3.6 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
+                </svg>
+                <span>{errors.form}</span>
+              </div>
+            )}
             {/* Email */}
             <div className={`auth-field ${errors.email ? 'auth-field--error' : ''}`}>
               <label className="auth-label" htmlFor="login-email">Email address</label>
@@ -133,6 +150,8 @@ export default function LoginPage() {
                   placeholder="you@company.com"
                   value={form.email}
                   onChange={handleChange}
+                  aria-invalid={Boolean(errors.email || errors.form)}
+                  aria-describedby={errors.email || errors.form ? 'login-error' : undefined}
                   autoComplete="email"
                 />
               </div>
@@ -160,6 +179,8 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={form.password}
                   onChange={handleChange}
+                  aria-invalid={Boolean(errors.password || errors.form)}
+                  aria-describedby={errors.password || errors.form ? 'login-error' : undefined}
                   autoComplete="current-password"
                 />
                 <button

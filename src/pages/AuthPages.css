@@ -500,6 +500,30 @@
   font-size: 0.7rem;
 }
 
+.auth-form-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  border-radius: var(--radius-sm);
+  background: #fff1f2;
+  color: #e11d48;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  animation: authAlertIn 0.2s ease-out;
+}
+
+.auth-form-alert svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@keyframes authAlertIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Eye button */
 .auth-eye-btn {
   position: absolute;

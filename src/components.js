@@ -1,16 +1,3 @@
-/**
- * src/components.js
- * Barrel export for all UI components.
- * Lives at src/ level alongside index.css and App.jsx.
- *
- * Each component lives in its own folder:
- *   components/ComponentName/
- *   ├── ComponentName.jsx   — the component
- *   └── ComponentName.css   — co-located styles
- *
- * Usage: import { Navbar, Hero } from '../components';  (from any page)
- *        import { Navbar, Hero } from './components';   (from App.jsx / src root)
- */
 export { default as Navbar }           from './components/Navbar/Navbar';
 export { default as Hero }             from './components/Hero/Hero';
 export { default as Features }         from './components/Features/Features';

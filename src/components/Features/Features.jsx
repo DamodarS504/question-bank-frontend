@@ -26,7 +26,7 @@ const features = [
     ),
     color: '#059669',
     title: 'Role-Based Access',
-    description: "Two distinct roles — Admin and Employee. Admins manage everything; employees access only what's assigned to them with JWT security.",
+    description: 'Two distinct roles — Admin and Employee. Admins manage questions and assignments; employees focus on their personalized preparation track.',
   },
   {
     id: 'feature-excel-upload',
@@ -40,7 +40,7 @@ const features = [
     ),
     color: '#34d399',
     title: 'Excel Bulk Upload',
-    description: 'Import hundreds of questions and employee records in seconds via Excel. Backend validates, deduplicates, and stores only clean data.',
+    description: 'Import hundreds of questions and employee records in seconds via Excel. The system validates, deduplicates, and stores only clean data.',
   },
   {
     id: 'feature-search-filter',
@@ -70,17 +70,17 @@ const features = [
     description: 'Track preparation completion percentage per employee. Admins see real-time dashboards; employees see their personal progress at a glance.',
   },
   {
-    id: 'feature-jwt-auth',
+    id: 'feature-targeted-assignments',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0110 0v4"/>
-        <circle cx="12" cy="16" r="1" fill="currentColor"/>
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+        <circle cx="12" cy="12" r="3"/>
       </svg>
     ),
     color: '#8b5cf6',
-    title: 'JWT Authentication',
-    description: 'Secure login with JWT tokens. Passwords are hashed, tokens are verified on every request, and role-based guards protect admin APIs.',
+    title: 'Targeted Assignments',
+    description: 'Admins can assign specific question sets tailored to individual employees based on their upcoming interview requirements.',
   },
 ];
 

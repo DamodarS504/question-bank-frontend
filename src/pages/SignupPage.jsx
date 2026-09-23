@@ -1,26 +1,35 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiErrorMessage, useSignupMutation } from '../features/auth/authApi';
 import './AuthPages.css';
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [signup, { isLoading }] = useSignupMutation();
   const [form, setForm] = useState({
     fullName: '',
+    employeeId: '',
     email: '',
+    baseLocation: '',
     password: '',
     confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const validate = () => {
     const e = {};
     if (!form.fullName.trim()) e.fullName = 'Full name is required';
     else if (form.fullName.trim().length < 2) e.fullName = 'Name must be at least 2 characters';
+
+    if (!form.employeeId.trim()) e.employeeId = 'Employee ID is required';
+
     if (!form.email.trim()) e.email = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email';
+
+    if (!form.baseLocation.trim()) e.baseLocation = 'Base location is required';
+
     if (!form.password) e.password = 'Password is required';
     else if (form.password.length < 8) e.password = 'Password must be at least 8 characters';
     else if (!/(?=.*[A-Z])(?=.*\d)/.test(form.password))
@@ -56,11 +65,22 @@ export default function SignupPage() {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setIsLoading(true);
-    // TODO: replace with real API call — role is always 'admin'
-    await new Promise((r) => setTimeout(r, 1600));
-    setIsLoading(false);
-    navigate('/login');
+    setErrors({});
+    const [firstName, ...lastNameParts] = form.fullName.trim().split(/\s+/);
+    try {
+      await signup({
+        employee_id: form.employeeId.trim(),
+        first_name: firstName,
+        last_name: lastNameParts.join(' ') || null,
+        email: form.email.trim(),
+        password: form.password,
+        confirm_password: form.confirmPassword,
+        base_location: form.baseLocation.trim() || null,
+      }).unwrap();
+      navigate('/login');
+    } catch (error) {
+      setErrors({ form: getApiErrorMessage(error) });
+    }
   };
 
   return (
@@ -133,6 +153,7 @@ export default function SignupPage() {
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate id="signup-form">
+            {errors.form && <p className="auth-error" role="alert">{errors.form}</p>}
 
             {/* Full Name */}
             <div className={`auth-field ${errors.fullName ? 'auth-field--error' : ''}`}>
@@ -158,6 +179,33 @@ export default function SignupPage() {
               {errors.fullName && <p className="auth-error" role="alert">{errors.fullName}</p>}
             </div>
 
+            {/* Employee ID */}
+            <div className={`auth-field ${errors.employeeId ? 'auth-field--error' : ''}`}>
+              <label className="auth-label" htmlFor="signup-employee-id">Employee ID</label>
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <circle cx="9" cy="10" r="2" />
+                    <line x1="15" y1="8" x2="17" y2="8" />
+                    <line x1="15" y1="12" x2="17" y2="12" />
+                    <line x1="7" y1="16" x2="17" y2="16" />
+                  </svg>
+                </span>
+                <input
+                  id="signup-employee-id"
+                  type="text"
+                  name="employeeId"
+                  className="auth-input"
+                  placeholder="e.g. EMP-1042"
+                  value={form.employeeId}
+                  onChange={handleChange}
+                  autoComplete="off"
+                />
+              </div>
+              {errors.employeeId && <p className="auth-error" role="alert">{errors.employeeId}</p>}
+            </div>
+
             {/* Email */}
             <div className={`auth-field ${errors.email ? 'auth-field--error' : ''}`}>
               <label className="auth-label" htmlFor="signup-email">Work email</label>
@@ -180,6 +228,30 @@ export default function SignupPage() {
                 />
               </div>
               {errors.email && <p className="auth-error" role="alert">{errors.email}</p>}
+            </div>
+
+            {/* Base Location */}
+            <div className={`auth-field ${errors.baseLocation ? 'auth-field--error' : ''}`}>
+              <label className="auth-label" htmlFor="signup-location">Base location</label>
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <input
+                  id="signup-location"
+                  type="text"
+                  name="baseLocation"
+                  className="auth-input"
+                  placeholder="e.g. Indore, Pune, Hyderabad"
+                  value={form.baseLocation}
+                  onChange={handleChange}
+                  autoComplete="address-level2"
+                />
+              </div>
+              {errors.baseLocation && <p className="auth-error" role="alert">{errors.baseLocation}</p>}
             </div>
 
             {/* Password */}

@@ -14,9 +14,9 @@ export const FOOTER_LINKS = {
     { label: 'Employee Overview', href: '#roles' },
     { label: 'Role Comparison',   href: '#roles' },
   ],
-  POC: [
-    { label: 'POC Overview',         href: '#home' },
-    { label: 'Success Criteria',     href: '#cta' },
-    { label: 'Implementation Steps', href: '#cta' },
+  Resources: [
+    { label: 'Platform Overview', href: '#home' },
+    { label: 'Workflow Guide',    href: '#how-it-works' },
+    { label: 'Get Started',       href: '#cta' },
   ],
 };

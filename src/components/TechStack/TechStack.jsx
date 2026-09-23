@@ -45,9 +45,9 @@ const techs = [
     badges: ['ACID', 'Relations', 'Indexes', 'JSONB'],
   },
   {
-    id: 'tech-jwt',
-    name: 'JWT Auth', version: 'RFC 7519', role: 'Security', color: '#d63aff',
-    description: 'Stateless JSON Web Token authentication with role-based access control, hashed passwords, and secure API guards.',
+    id: 'tech-security',
+    name: 'Security & RBAC', version: 'Enterprise', role: 'Security', color: '#d63aff',
+    description: 'Role-based access control ensuring authenticated sessions, encrypted credentials, and secure data access for all users.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="45" width="60" height="42" rx="6" stroke="#d63aff" strokeWidth="4" fill="none"/>
@@ -56,7 +56,7 @@ const techs = [
         <line x1="50" y1="72" x2="50" y2="80" stroke="#d63aff" strokeWidth="3" strokeLinecap="round"/>
       </svg>
     ),
-    badges: ['Stateless', 'Role Guard', 'Hashing', 'Secure'],
+    badges: ['Access Control', 'Role Guard', 'Encrypted', 'Protected'],
   },
 ];
 
@@ -99,9 +99,9 @@ export default function TechStack() {
         <div className="ts__arch-note glass-card">
           <div className="ts__arch-icon">🏗️</div>
           <div>
-            <h4 className="ts__arch-title">Modular Monolith Architecture</h4>
+            <h4 className="ts__arch-title">Modular & Scalable Architecture</h4>
             <p className="ts__arch-desc">
-              React communicates only with the FastAPI layer. FastAPI owns auth, validation, Excel imports, assignments, and progress reporting. PostgreSQL is the single system of record — clean, predictable, and easy to extend.
+              Structured architecture cleanly separating presentation, business logic, and persistent storage — clean, resilient, and enterprise-ready.
             </p>
           </div>
         </div>
