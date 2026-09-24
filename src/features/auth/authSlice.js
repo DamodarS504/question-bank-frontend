@@ -1,8 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  accessToken: localStorage.getItem('questionHubAccessToken'),
-  tokenType: localStorage.getItem('questionHubTokenType'),
+  accessToken: null,
+  tokenType: null,
+  user: null,
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -10,20 +12,28 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, action) => {
-      const { access_token: accessToken, token_type: tokenType } = action.payload;
-      state.accessToken = accessToken;
+      const payload = action.payload || {};
+      const token = payload.access_token || payload.accessToken || payload.token || null;
+      const tokenType = payload.token_type || payload.tokenType || (token ? 'bearer' : null);
+      const user = payload.user || state.user || null;
+
+      state.accessToken = token;
       state.tokenType = tokenType;
-      localStorage.setItem('questionHubAccessToken', accessToken);
-      localStorage.setItem('questionHubTokenType', tokenType);
+      state.user = user;
+      state.isAuthenticated = true;
+    },
+    setUser: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
     },
     logout: (state) => {
       state.accessToken = null;
       state.tokenType = null;
-      localStorage.removeItem('questionHubAccessToken');
-      localStorage.removeItem('questionHubTokenType');
+      state.user = null;
+      state.isAuthenticated = false;
     },
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, setUser, logout } = authSlice.actions;
 export default authSlice.reducer;

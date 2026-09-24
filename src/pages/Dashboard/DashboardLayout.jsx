@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Navigate, NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react';
-import { logout } from '../../features/auth/authSlice';
+import { useDispatch } from 'react-redux';
+import { logout, setUser } from '../../features/auth/authSlice';
+import { useGetProfileQuery, useLogoutApiMutation } from '../../features/auth/authApi';
 import './Dashboard.css';
 
 function HomeIcon() {
@@ -16,18 +17,47 @@ function LogoutIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /><path d="M21 19V5a2 2 0 0 0-2-2h-6" /></svg>;
 }
 
+function QuestionIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+      <path d="M9 7h6M9 11h4" />
+    </svg>
+  );
+}
+
 export default function DashboardLayout({ children, title, eyebrow }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const accessToken = useSelector((state) => state.auth.accessToken);
+  const [logoutApi] = useLogoutApiMutation();
+  const { data: profile, isLoading, isError } = useGetProfileQuery();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    if (profile) {
+      dispatch(setUser(profile));
+    }
+  }, [profile, dispatch]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch {
+    }
     dispatch(logout());
     navigate('/login');
   };
 
-  if (!accessToken) {
+  if (isLoading) {
+    return (
+      <div className="dashboard-shell" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', color: '#0d9488' }}>
+        <p style={{ fontWeight: 600 }}>Loading workspace...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
     return <Navigate to="/login" replace />;
   }
 
@@ -44,6 +74,10 @@ export default function DashboardLayout({ children, title, eyebrow }) {
           <NavLink to="/dashboard" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
             <HomeIcon />
             Dashboard
+          </NavLink>
+          <NavLink to="/questions" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
+            <QuestionIcon />
+            Question Bank
           </NavLink>
         </nav>
 
@@ -69,7 +103,11 @@ export default function DashboardLayout({ children, title, eyebrow }) {
               aria-expanded={isProfileMenuOpen}
               onClick={() => setIsProfileMenuOpen((isOpen) => !isOpen)}
             >
-              <UserIcon />
+              {profile?.first_name ? (
+                <span style={{ fontWeight: 700, fontSize: '1rem' }}>{profile.first_name.charAt(0).toUpperCase()}</span>
+              ) : (
+                <UserIcon />
+              )}
             </button>
             {isProfileMenuOpen && (
               <div className="dashboard-profile-dropdown">

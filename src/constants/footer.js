@@ -6,17 +6,17 @@
 export const FOOTER_LINKS = {
   Platform: [
     { label: 'Features',          href: '#features' },
-    { label: 'How It Works',      href: '#how-it-works' },
-    { label: 'Dashboard Preview', href: '#dashboard' },
+    { label: 'Preparation Steps', href: '#how-it-works' },
+    { label: 'Workspace Preview', href: '#dashboard' },
   ],
-  Roles: [
-    { label: 'Admin Overview',    href: '#roles' },
-    { label: 'Employee Overview', href: '#roles' },
-    { label: 'Role Comparison',   href: '#roles' },
+  Learning: [
+    { label: 'Curated Question Bank', href: '#features' },
+    { label: 'Preparation Roadmap',   href: '#how-it-works' },
+    { label: 'Interview Readiness',   href: '#benefits' },
   ],
   Resources: [
     { label: 'Platform Overview', href: '#home' },
-    { label: 'Workflow Guide',    href: '#how-it-works' },
+    { label: 'Employee Workspace', href: '#dashboard' },
     { label: 'Get Started',       href: '#cta' },
   ],
 };

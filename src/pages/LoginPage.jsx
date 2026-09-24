@@ -74,36 +74,36 @@ export default function LoginPage() {
               <span className="auth-left__title-accent">QuestionHub</span>
             </h1>
             <p className="auth-left__sub">
-              Sign in to access your dashboard. Your role determines what you see after logging in.
+              Sign in to access your personal dashboard, track your learning progress, and master your technical interview questions.
             </p>
           </div>
 
-          {/* Role info cards */}
+          {/* Platform highlights */}
           <div className="auth-left__roles">
             <div className="auth-role-info-card">
-              <span className="auth-role-info-icon">🛠️</span>
+              <span className="auth-role-info-icon">🎯</span>
               <div>
-                <p className="auth-role-info-name">Admin</p>
-                <p className="auth-role-info-desc">Manage employees, questions & assignments</p>
+                <p className="auth-role-info-name">Curated Question Sets</p>
+                <p className="auth-role-info-desc">Expert-vetted interview questions tailored to your tech stack</p>
               </div>
             </div>
             <div className="auth-role-info-card">
-              <span className="auth-role-info-icon">📖</span>
+              <span className="auth-role-info-icon">📈</span>
               <div>
-                <p className="auth-role-info-name">Employee</p>
-                <p className="auth-role-info-desc">Study assigned questions & track progress</p>
+                <p className="auth-role-info-name">Real-Time Readiness</p>
+                <p className="auth-role-info-desc">Track completion, bookmark tricky topics & build confidence</p>
               </div>
             </div>
           </div>
 
-          {/* Note for employees */}
+          {/* Access note */}
           <div className="auth-left__employee-note">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            <span>Employee credentials are provided by your Admin. Contact your Admin if you don't have access.</span>
+            <span>Sign in with your work email credentials to continue your preparation.</span>
           </div>
 
           {/* Decorative orbs */}
@@ -227,15 +227,18 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Admin signup link — only for admins */}
+          {/* Signup link */}
           <div className="auth-divider">
-            <span>Are you an Admin setting up a new account?</span>
+            <span>Don't have an account yet?</span>
           </div>
-          <Link to="/signup" className="auth-admin-register-btn" id="login-to-admin-signup">
+          <Link to="/signup" className="auth-admin-register-btn" id="login-to-signup">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <line x1="19" y1="8" x2="19" y2="14" />
+              <line x1="22" y1="11" x2="16" y2="11" />
             </svg>
-            Register as Admin
+            Create an Account
           </Link>
 
           <p className="auth-footer-note" style={{ marginTop: '16px' }}>

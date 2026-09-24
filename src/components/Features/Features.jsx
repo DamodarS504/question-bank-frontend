@@ -3,7 +3,7 @@ import './Features.css';
 
 const features = [
   {
-    id: 'feature-central-bank',
+    id: 'feature-curated-bank',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
@@ -12,35 +12,30 @@ const features = [
       </svg>
     ),
     color: '#0d9488',
-    title: 'Central Question Bank',
-    description: 'Store all interview questions in one organised place. Categorise by technology, difficulty, and topic for quick retrieval.',
+    title: 'Curated Question Bank',
+    description: 'Access expert-vetted interview questions categorized by technology, difficulty level, and core architectural topics.',
   },
   {
-    id: 'feature-role-access',
+    id: 'feature-tailored-tracks',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
       </svg>
     ),
     color: '#059669',
-    title: 'Role-Based Access',
-    description: 'Two distinct roles — Admin and Employee. Admins manage questions and assignments; employees focus on their personalized preparation track.',
+    title: 'Tailored Skill Tracks',
+    description: 'Focus on targeted preparation tracks aligned directly with your upcoming client interview requirements and role expectations.',
   },
   {
-    id: 'feature-excel-upload',
+    id: 'feature-in-depth-answers',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="18" x2="12" y2="12"/>
-        <line x1="9" y1="15" x2="15" y2="15"/>
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
     ),
     color: '#34d399',
-    title: 'Excel Bulk Upload',
-    description: 'Import hundreds of questions and employee records in seconds via Excel. The system validates, deduplicates, and stores only clean data.',
+    title: 'In-Depth Answers & Insights',
+    description: 'Learn best practices with structured answers, sample code snippets, and key talking points that resonate with interviewers.',
   },
   {
     id: 'feature-search-filter',
@@ -52,8 +47,8 @@ const features = [
       </svg>
     ),
     color: '#f59e0b',
-    title: 'Smart Search & Filter',
-    description: 'Employees can search questions by keyword, filter by technology stack, and quickly find what they need for their upcoming interview.',
+    title: 'Smart Search & Multi-Filter',
+    description: 'Find exact questions by keyword, filter across tech stacks (Python, Java, React, Cloud, SQL), and locate topics in milliseconds.',
   },
   {
     id: 'feature-progress',
@@ -66,21 +61,19 @@ const features = [
       </svg>
     ),
     color: '#ec4899',
-    title: 'Progress Tracking',
-    description: 'Track preparation completion percentage per employee. Admins see real-time dashboards; employees see their personal progress at a glance.',
+    title: 'Readiness Benchmarks',
+    description: 'Watch your completion score climb in real-time. Know exactly when your preparation is solid and ready for the technical evaluation.',
   },
   {
-    id: 'feature-targeted-assignments',
+    id: 'feature-bookmarks',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
-        <circle cx="12" cy="12" r="3"/>
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
       </svg>
     ),
     color: '#8b5cf6',
-    title: 'Targeted Assignments',
-    description: 'Admins can assign specific question sets tailored to individual employees based on their upcoming interview requirements.',
+    title: 'Smart Bookmarks & Revision',
+    description: 'Star challenging questions and complex patterns to assemble your own high-yield quick review deck right before interviews.',
   },
 ];
 
@@ -95,8 +88,7 @@ export default function Features() {
             <span className="gradient-text">interview success</span>
           </h2>
           <p className="section-subtitle">
-            A complete workflow from question creation to employee readiness —
-            all in one streamlined platform.
+            A structured, self-paced workflow designed to help software engineers prepare, benchmark, and succeed.
           </p>
         </div>
 

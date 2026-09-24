@@ -120,17 +120,28 @@ export default function SignupPage() {
           {/* Feature checklist */}
           <div className="auth-left__features">
             {[
-              'Centralised question management',
-              'Upload questions via Excel',
-              'Assign & track progress',
-              'Role-based access control',
-              'Real-time readiness insights',
+              'Curated technical interview question bank',
+              'Personalized tracks by tech stack & domain',
+              'Interactive progress & readiness tracking',
+              'One-click bookmarking for rapid review',
+              'In-depth answers, explanations & code snippets',
             ].map((f, i) => (
               <div className="auth-check-item" key={i}>
                 <span className="auth-check-icon">✓</span>
                 <span>{f}</span>
               </div>
             ))}
+          </div>
+
+          {/* Bottom highlight */}
+          <div className="auth-left__trust-card">
+            <div className="auth-left__trust-inner">
+              <span className="auth-left__trust-icon">🎯</span>
+              <div>
+                <p className="auth-left__trust-title">Interview-Ready Preparation</p>
+                <p className="auth-left__trust-sub">Targeted questions & skill benchmarks across 10+ tech stacks</p>
+              </div>
+            </div>
           </div>
 
           {/* Decorative orbs */}
@@ -221,7 +232,7 @@ export default function SignupPage() {
                   type="email"
                   name="email"
                   className="auth-input"
-                  placeholder="admin@company.com"
+                  placeholder="you@company.com"
                   value={form.email}
                   onChange={handleChange}
                   autoComplete="email"

@@ -3,9 +3,9 @@ import { useEffect, useRef } from 'react';
 import './Hero.css';
 
 const stats = [
-  { value: 'Admin',    label: 'Manage & Assign Questions', icon: '🛠️' },
-  { value: 'Employee', label: 'Study & Track Progress',    icon: '📖' },
-  { value: '100%',     label: 'Progress Visibility',       icon: '📈' },
+  { value: '500+', label: 'Curated Interview Questions', icon: '🎯' },
+  { value: '10+',  label: 'Modern Tech Stacks',          icon: '💻' },
+  { value: '100%', label: 'Personal Readiness Tracking', icon: '📈' },
 ];
 
 export default function Hero() {
@@ -46,8 +46,8 @@ export default function Hero() {
           </h1>
 
           <p className="hero__description">
-            Centralise your entire interview preparation workflow. Admins manage questions,
-            employees, and assignments — employees study, track progress, and ace client interviews.
+            Accelerate your technical interview preparation with curated questions, structured learning tracks,
+            and real-time skill benchmarking tailored to your role and tech stack.
           </p>
 
           <div className="hero__actions">
@@ -85,13 +85,13 @@ export default function Hero() {
               <span className="dot dot--red" />
               <span className="dot dot--yellow" />
               <span className="dot dot--green" />
-              <span className="hero__mockup-url">questionhub.app / dashboard</span>
+              <span className="hero__mockup-url">questionhub.app / my-workspace</span>
             </div>
 
             <div className="hero__mockup-body">
               <div className="mockup__sidebar">
                 <div className="mockup__sidebar-logo">QH</div>
-                {['Dashboard', 'Questions', 'Employees', 'Assignments', 'Progress'].map((item, i) => (
+                {['My Dashboard', 'Questions', 'Tech Tracks', 'Bookmarks', 'Readiness'].map((item, i) => (
                   <div key={i} className={`mockup__sidebar-item ${i === 0 ? 'active' : ''}`}>
                     <span className="mockup__sidebar-dot" />
                     {item}
@@ -99,13 +99,13 @@ export default function Hero() {
                 ))}
               </div>
               <div className="mockup__main">
-                <p className="mockup__greeting">Admin Dashboard</p>
+                <p className="mockup__greeting">My Preparation Hub</p>
                 <div className="mockup__cards">
                   {[
-                    { label: 'Total Questions', val: '248', color: '#0d9488' },
-                    { label: 'Employees',        val: '32',  color: '#059669' },
-                    { label: 'Completed',        val: '74%', color: '#34d399' },
-                    { label: 'Pending',          val: '26%', color: '#f59e0b' },
+                    { label: 'Assigned Questions', val: '248', color: '#0d9488' },
+                    { label: 'Prepared',           val: '74%', color: '#059669' },
+                    { label: 'In Progress',        val: '18%', color: '#34d399' },
+                    { label: 'Readiness Score',    val: '92%', color: '#f59e0b' },
                   ].map((c, i) => (
                     <div className="mockup__card" key={i} style={{ '--card-color': c.color }}>
                       <p className="mockup__card-val">{c.val}</p>
@@ -142,10 +142,10 @@ export default function Hero() {
             </div>
           </div>
           <div className="hero__float-card hero__float-card--2 animate-float" style={{ animationDelay: '1.2s' }}>
-            <span className="hero__float-icon">📤</span>
+            <span className="hero__float-icon">🎯</span>
             <div>
-              <p className="hero__float-title">Excel Uploaded</p>
-              <p className="hero__float-sub">48 questions imported</p>
+              <p className="hero__float-title">Interview Ready</p>
+              <p className="hero__float-sub">Cloud & React Track · 92% readiness</p>
             </div>
           </div>
         </div>

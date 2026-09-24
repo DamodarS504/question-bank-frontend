@@ -10,30 +10,25 @@ export const FEATURES = [
            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
            <path d="M8 7h8M8 11h6M8 15h4" stroke-linecap="round"/>`,
     color: '#0d9488',
-    title: 'Central Question Bank',
+    title: 'Curated Question Bank',
     description:
-      'Store all interview questions in one organised place. Categorise by technology, difficulty, and topic for quick retrieval.',
+      'Access expert-vetted technical interview questions categorized by technology, difficulty, and topic for focused preparation.',
   },
   {
-    id: 'feature-role-access',
-    icon: `<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-           <circle cx="9" cy="7" r="4"/>
-           <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>`,
+    id: 'feature-personalized-tracks',
+    icon: `<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>`,
     color: '#059669',
-    title: 'Role-Based Access',
+    title: 'Tailored Skill Tracks',
     description:
-      'Two distinct roles — Admin and Employee. Admins manage questions and assignments; employees focus on their personalized preparation track.',
+      'Focus specifically on the competencies and technologies needed for your upcoming client discussions and internal evaluations.',
   },
   {
-    id: 'feature-excel-upload',
-    icon: `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-           <polyline points="14 2 14 8 20 8"/>
-           <line x1="12" y1="18" x2="12" y2="12"/>
-           <line x1="9" y1="15" x2="15" y2="15"/>`,
+    id: 'feature-verified-answers',
+    icon: `<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
     color: '#34d399',
-    title: 'Excel Bulk Upload',
+    title: 'In-Depth Answers & Insights',
     description:
-      'Import hundreds of questions and employee records in seconds via Excel. The system validates, deduplicates, and stores only clean data.',
+      'Learn best practices with structured answers, code snippets, and key talking points that resonate with technical interviewers.',
   },
   {
     id: 'feature-search-filter',
@@ -41,9 +36,9 @@ export const FEATURES = [
            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
            <path d="M11 8v3l2 2" stroke-linecap="round"/>`,
     color: '#f59e0b',
-    title: 'Smart Search & Filter',
+    title: 'Smart Search & Multi-Filter',
     description:
-      'Employees can search questions by keyword, filter by technology stack, and quickly find what they need for their upcoming interview.',
+      'Find exact questions by keyword, filter across tech stacks (Python, Java, React, Cloud, SQL), and pinpoint key topics instantly.',
   },
   {
     id: 'feature-progress',
@@ -52,18 +47,16 @@ export const FEATURES = [
            <line x1="6" y1="20" x2="6" y2="14"/>
            <line x1="2" y1="20" x2="22" y2="20"/>`,
     color: '#ec4899',
-    title: 'Progress Tracking',
+    title: 'Readiness Benchmarks',
     description:
-      'Track preparation completion percentage per employee. Admins see real-time dashboards; employees see their personal progress at a glance.',
+      'Watch your completion percentage grow in real-time. Know exactly when your preparation is solid and ready for the client round.',
   },
   {
-    id: 'feature-targeted-assignments',
-    icon: `<circle cx="12" cy="12" r="10"/>
-           <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
-           <circle cx="12" cy="12" r="3"/>`,
+    id: 'feature-bookmarks',
+    icon: `<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>`,
     color: '#8b5cf6',
-    title: 'Targeted Assignments',
+    title: 'Smart Bookmarks & Revision',
     description:
-      'Admins can assign specific question sets tailored to individual employees based on their upcoming interview requirements.',
+      'Star challenging questions and complex architectural patterns to create your own high-yield quick review deck right before interviews.',
   },
 ];

@@ -15,9 +15,9 @@ export default function Navbar() {
 
   const navLinks = [
     { label: 'Features',     href: '#features' },
-    { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Roles',        href: '#roles' },
-    { label: 'Dashboard',    href: '#dashboard' },
+    { label: 'Roadmap',      href: '#how-it-works' },
+    { label: 'Why QuestionHub', href: '#benefits' },
+    { label: 'Workspace',    href: '#dashboard' },
   ];
 
   return (

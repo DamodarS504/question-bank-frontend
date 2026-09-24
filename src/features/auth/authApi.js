@@ -1,13 +1,22 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://10.4.9.38:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
-  prepareHeaders: (headers) => {
-    const token = localStorage.getItem('questionHubAccessToken');
-    if (token) headers.set('Authorization', `Bearer ${token}`);
-    headers.set('Content-Type', 'application/json');
+  credentials: 'include',
+  prepareHeaders: (headers, { getState }) => {
+    const token = getState().auth?.accessToken;
+
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    if (headers.get('Content-Type') === 'multipart/form-data') {
+      headers.delete('Content-Type');
+    } else if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
     return headers;
   },
 });
@@ -15,30 +24,56 @@ const baseQuery = fetchBaseQuery({
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery,
-  tagTypes: ['Profile'],
+  tagTypes: ['Profile', 'Questions'],
   endpoints: (builder) => ({
     signup: builder.mutation({
       query: (body) => ({
-        url: '/auth/auth/signup',
+        url: '/api/v1/auth/signup',
         method: 'POST',
         body,
       }),
     }),
     login: builder.mutation({
-      query: (body) => ({
-        url: '/auth/auth/login',
+      query: (credentials) => {
+        const body = new URLSearchParams();
+        if (credentials instanceof FormData) {
+          for (const [key, value] of credentials.entries()) {
+            body.append(key, value);
+          }
+        } else {
+          body.append('username', credentials.username || credentials.email || '');
+          body.append('password', credentials.password || '');
+          if (credentials.grant_type) {
+            body.append('grant_type', credentials.grant_type);
+          }
+        }
+
+        return {
+          url: '/api/v1/auth/login',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: body.toString(),
+        };
+      },
+      invalidatesTags: ['Profile'],
+    }),
+    logoutApi: builder.mutation({
+      query: () => ({
+        url: '/api/v1/auth/logout',
         method: 'POST',
-        body,
       }),
+      invalidatesTags: ['Profile'],
     }),
     getProfile: builder.query({
-      query: () => '/auth/auth/me',
+      query: () => '/api/v1/auth/admin_profile',
       providesTags: ['Profile'],
     }),
   }),
 });
 
-export const { useSignupMutation, useLoginMutation, useGetProfileQuery } = authApi;
+export const { useSignupMutation, useLoginMutation, useLogoutApiMutation, useGetProfileQuery } = authApi;
 
 export function getApiErrorMessage(error) {
   if (!error) return 'Something went wrong. Please try again.';

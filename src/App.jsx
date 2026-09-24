@@ -9,6 +9,7 @@ import LoginPage   from './pages/LoginPage';
 import SignupPage  from './pages/SignupPage';
 import DashboardPage from './pages/Dashboard/DashboardPage';
 import ProfilePage from './pages/Profile/ProfilePage';
+import QuestionsPage from './pages/Questions/QuestionsPage';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/questions" element={<QuestionsPage />} />
     </Routes>
   );
 }

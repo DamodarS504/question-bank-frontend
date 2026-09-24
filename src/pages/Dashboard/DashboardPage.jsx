@@ -1,35 +1,68 @@
+import { Link } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
+import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
+
+function getQuestionCount(data) {
+  if (!data) return 0;
+  if (Array.isArray(data)) return data.length;
+  if (Array.isArray(data.questions)) return data.questions.length;
+  if (Array.isArray(data.items)) return data.items.length;
+  if (Array.isArray(data.data)) return data.data.length;
+  if (Array.isArray(data.results)) return data.results.length;
+  if (typeof data.count === 'number') return data.count;
+  if (typeof data.total === 'number') return data.total;
+  return 0;
+}
 
 const summaryCards = [
-  { icon: '👥', label: 'Total Employees', helper: 'Grows with your team', tone: 'purple' },
-  { icon: '📚', label: 'Total Questions', helper: 'Excel upload supported', tone: 'teal' },
-  { icon: '🎯', label: 'Total Assignments', helper: 'Across all technologies', tone: 'mint' },
-  { icon: '✓', label: 'Completed', helper: 'Updated in real-time', tone: 'green' },
-  { icon: '⌛', label: 'Pending', helper: 'Tracked automatically', tone: 'amber' },
+  { key: 'questions', icon: '📋', label: 'Assigned Questions', helper: 'Available in bank', tone: 'purple' },
+  { key: 'prepared',  icon: '✓',  label: 'Prepared',           helper: 'Marked as mastered',   tone: 'green' },
+  { key: 'progress',  icon: '⌛',  label: 'In Progress',        helper: 'Active practice track', tone: 'amber' },
+  { key: 'saved',     icon: '🔖', label: 'Bookmarked',         helper: 'Saved for quick review', tone: 'teal' },
+  { key: 'readiness', icon: '📈', label: 'Readiness Score',    helper: 'Client interview ready', tone: 'mint' },
 ];
 
 const recentActivity = [
-  { initials: 'E1', role: 'Employee', action: 'Completed a Python Core section', time: 'Just now' },
-  { initials: 'E2', role: 'Employee', action: 'Started a new SQL assignment', time: '15m ago' },
-  { initials: 'AD', role: 'Admin', action: 'Uploaded a new question batch', time: '1h ago' },
-  { initials: 'E3', role: 'Employee', action: 'Viewed a JavaScript section', time: '2h ago' },
+  { initials: 'PY', title: 'Python Track',     action: 'Completed Python Core section',        time: 'Just now' },
+  { initials: 'SQL', title: 'Database Track',  action: 'Practiced Indexing & Query Tuning',    time: '15m ago' },
+  { initials: 'SYS', title: 'Architecture',    action: 'Reviewed Microservices Design Patterns', time: '1h ago' },
+  { initials: 'REA', title: 'Frontend Track',  action: 'Bookmarked React Hooks Deep-Dive',     time: '2h ago' },
 ];
 
 export default function DashboardPage() {
+  const { data: questionsData } = useGetQuestionsQuery();
+  const totalQuestions = getQuestionCount(questionsData);
+
   return (
     <DashboardLayout title="Dashboard" eyebrow="Overview">
       <div className="dashboard-overview-grid">
         <section className="dashboard-stats" aria-label="Summary statistics">
-          {summaryCards.map((card) => (
-            <article className={`dashboard-stat-card dashboard-stat-card--${card.tone}`} key={card.label}>
-              <span className="dashboard-stat-card__icon" aria-hidden="true">{card.icon}</span>
-              <div>
-                <span className="dashboard-stat-card__value">-</span>
-                <h2>{card.label}</h2>
-                <p>{card.helper}</p>
-              </div>
-            </article>
-          ))}
+          {summaryCards.map((card) => {
+            const val = card.key === 'questions' ? (totalQuestions || '-') : '-';
+            return (
+              <article className={`dashboard-stat-card dashboard-stat-card--${card.tone}`} key={card.label}>
+                <span className="dashboard-stat-card__icon" aria-hidden="true">{card.icon}</span>
+                <div>
+                  <span className="dashboard-stat-card__value">{val}</span>
+                  <h2>{card.label}</h2>
+                  <p>{card.helper}</p>
+                </div>
+              </article>
+            );
+          })}
+
+          <article className="dashboard-stat-card dashboard-stat-card--teal" style={{ border: '1px dashed #0d9488' }}>
+            <span className="dashboard-stat-card__icon" aria-hidden="true">📂</span>
+            <div>
+              <span className="dashboard-stat-card__value">
+                <Link to="/questions" style={{ textDecoration: 'none', color: '#0d9488', fontSize: '0.95rem', fontWeight: 700 }}>
+                  Go to Bank &rarr;
+                </Link>
+              </span>
+              <h2>Question Bank</h2>
+              <p>Upload files &amp; explore</p>
+            </div>
+          </article>
         </section>
 
         <aside className="dashboard-side-column">
@@ -50,7 +83,7 @@ export default function DashboardPage() {
                 <div className="activity-item" key={`${item.initials}-${item.time}`}>
                   <span className="activity-item__avatar">{item.initials}</span>
                   <div className="activity-item__body">
-                    <strong>{item.role}</strong>
+                    <strong>{item.title}</strong>
                     <span>{item.action}</span>
                   </div>
                   <time>{item.time}</time>

@@ -26,11 +26,12 @@
 .auth-left__inner {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 48px 52px;
   position: relative;
   z-index: 1;
   width: 100%;
+  min-height: 100%;
 }
 
 /* Brand / Logo */
@@ -70,11 +71,10 @@
 
 /* Hero text */
 .auth-left__hero {
-  flex: 1;
+  flex: none;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 40px 0;
+  padding: 36px 0 28px;
 }
 
 .auth-left__title {
@@ -141,10 +141,9 @@
 .auth-left__features {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  justify-content: center;
-  padding: 40px 0;
+  gap: 14px;
+  flex: none;
+  padding: 0;
 }
 
 /* Role info cards (login left panel) */
@@ -328,6 +327,42 @@
   font-weight: 800;
   color: white;
   flex-shrink: 0;
+}
+
+/* Trust / Highlight card at the bottom of the left panel */
+.auth-left__trust-card {
+  margin-top: auto;
+  padding-top: 40px;
+}
+
+.auth-left__trust-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+}
+
+.auth-left__trust-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.auth-left__trust-title {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.auth-left__trust-sub {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.4;
 }
 
 /* Decorative orbs */

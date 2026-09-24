@@ -46,8 +46,8 @@ const techs = [
   },
   {
     id: 'tech-security',
-    name: 'Security & RBAC', version: 'Enterprise', role: 'Security', color: '#d63aff',
-    description: 'Role-based access control ensuring authenticated sessions, encrypted credentials, and secure data access for all users.',
+    name: 'Authentication & Security', version: 'Enterprise', role: 'Security', color: '#d63aff',
+    description: 'Enterprise-grade security ensuring authenticated sessions, encrypted credentials, and protected data access.',
     icon: (
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="20" y="45" width="60" height="42" rx="6" stroke="#d63aff" strokeWidth="4" fill="none"/>
@@ -56,7 +56,7 @@ const techs = [
         <line x1="50" y1="72" x2="50" y2="80" stroke="#d63aff" strokeWidth="3" strokeLinecap="round"/>
       </svg>
     ),
-    badges: ['Access Control', 'Role Guard', 'Encrypted', 'Protected'],
+    badges: ['JWT Tokens', 'HttpOnly Cookie', 'Encrypted', 'Protected'],
   },
 ];
 
