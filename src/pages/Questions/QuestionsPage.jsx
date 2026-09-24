@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
-import { getApiErrorMessage } from '../../features/auth/authApi';
+import { useGetProfileQuery, getApiErrorMessage } from '../../features/auth/authApi';
 import UploadModal from './UploadModal';
 import './Questions.css';
 
@@ -48,7 +48,15 @@ export default function QuestionsPage() {
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, isError, error, refetch } = useGetQuestionsQuery();
+  const { data: profile, isLoading: isProfileLoading } = useGetProfileQuery();
+  const employeeId = profile?.employee_id;
+
+  const { data, isLoading: isQuestionsLoading, isError, error, refetch } = useGetQuestionsQuery(
+    employeeId ? { employee_id: employeeId } : undefined,
+    { skip: !employeeId }
+  );
+
+  const isLoading = isProfileLoading || isQuestionsLoading;
 
   const allQuestions = useMemo(() => normalizeQuestions(data), [data]);
 

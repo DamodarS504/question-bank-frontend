@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery,
-  tagTypes: ['Profile', 'Questions'],
+  tagTypes: ['Profile', 'Questions', 'Employees'],
   endpoints: (builder) => ({
     signup: builder.mutation({
       query: (body) => ({
@@ -67,13 +67,27 @@ export const authApi = createApi({
       invalidatesTags: ['Profile'],
     }),
     getProfile: builder.query({
-      query: () => '/api/v1/auth/admin_profile',
+      query: () => '/api/v1/auth/current-user',
       providesTags: ['Profile'],
+    }),
+    updateProfile: builder.mutation({
+      query: (body) => ({
+        url: '/api/v1/auth/update-profile',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['Profile'],
     }),
   }),
 });
 
-export const { useSignupMutation, useLoginMutation, useLogoutApiMutation, useGetProfileQuery } = authApi;
+export const {
+  useSignupMutation,
+  useLoginMutation,
+  useLogoutApiMutation,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} = authApi;
 
 export function getApiErrorMessage(error) {
   if (!error) return 'Something went wrong. Please try again.';

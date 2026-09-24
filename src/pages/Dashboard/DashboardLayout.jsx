@@ -27,6 +27,17 @@ function QuestionIcon() {
   );
 }
 
+function UsersIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
 export default function DashboardLayout({ children, title, eyebrow }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -78,6 +89,10 @@ export default function DashboardLayout({ children, title, eyebrow }) {
           <NavLink to="/questions" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
             <QuestionIcon />
             Question Bank
+          </NavLink>
+          <NavLink to="/employees" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
+            <UsersIcon />
+            Employees
           </NavLink>
         </nav>
 

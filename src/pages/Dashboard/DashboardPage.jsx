@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
+import { useGetProfileQuery } from '../../features/auth/authApi';
 
 function getQuestionCount(data) {
   if (!data) return 0;
@@ -30,7 +31,12 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
-  const { data: questionsData } = useGetQuestionsQuery();
+  const { data: profile } = useGetProfileQuery();
+  const employeeId = profile?.employee_id;
+  const { data: questionsData } = useGetQuestionsQuery(
+    employeeId ? { employee_id: employeeId } : undefined,
+    { skip: !employeeId }
+  );
   const totalQuestions = getQuestionCount(questionsData);
 
   return (
@@ -51,16 +57,29 @@ export default function DashboardPage() {
             );
           })}
 
-          <article className="dashboard-stat-card dashboard-stat-card--teal" style={{ border: '1px dashed #0d9488' }}>
+          <article className="dashboard-stat-card dashboard-stat-card--teal dashboard-stat-card--dashed">
             <span className="dashboard-stat-card__icon" aria-hidden="true">📂</span>
             <div>
               <span className="dashboard-stat-card__value">
-                <Link to="/questions" style={{ textDecoration: 'none', color: '#0d9488', fontSize: '0.95rem', fontWeight: 700 }}>
+                <Link to="/questions" className="dashboard-card-link">
                   Go to Bank &rarr;
                 </Link>
               </span>
               <h2>Question Bank</h2>
               <p>Upload files &amp; explore</p>
+            </div>
+          </article>
+
+          <article className="dashboard-stat-card dashboard-stat-card--mint dashboard-stat-card--dashed">
+            <span className="dashboard-stat-card__icon" aria-hidden="true">👥</span>
+            <div>
+              <span className="dashboard-stat-card__value">
+                <Link to="/employees" className="dashboard-card-link">
+                  Employees &rarr;
+                </Link>
+              </span>
+              <h2>Employees</h2>
+              <p>Upload &amp; manage directory</p>
             </div>
           </article>
         </section>
