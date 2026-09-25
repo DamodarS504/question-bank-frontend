@@ -14,10 +14,8 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { label: 'Features',     href: '#features' },
-    { label: 'Roadmap',      href: '#how-it-works' },
+    { label: 'Features',        href: '#features' },
     { label: 'Why QuestionHub', href: '#benefits' },
-    { label: 'Workspace',    href: '#dashboard' },
   ];
 
   return (

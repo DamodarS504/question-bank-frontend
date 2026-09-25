@@ -78,6 +78,13 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Profile'],
     }),
+    changePassword: builder.mutation({
+      query: (body) => ({
+        url: '/api/v1/auth/change-password',
+        method: 'PUT',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -87,6 +94,7 @@ export const {
   useLogoutApiMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
+  useChangePasswordMutation,
 } = authApi;
 
 export function getApiErrorMessage(error) {

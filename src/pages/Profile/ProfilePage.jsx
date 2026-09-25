@@ -5,7 +5,17 @@ import {
   useGetProfileQuery,
   useUpdateProfileMutation,
 } from '../../features/auth/authApi';
+import ChangePasswordModal from './ChangePasswordModal';
 import './Profile.css';
+
+function LockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
 
 function ProfileRow({ label, value }) {
   return (
@@ -19,7 +29,9 @@ function ProfileRow({ label, value }) {
 export default function ProfilePage() {
   const { data: profile, isLoading, isError, error } = useGetProfileQuery();
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
   const [isEditing, setIsEditing] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
 
@@ -87,6 +99,7 @@ export default function ProfilePage() {
       {isError && <div className="profile-state profile-state--error" role="alert">{getApiErrorMessage(error)}</div>}
       {profile && (
         <section className="profile-content">
+          {/* Identity Column */}
           <div className="profile-identity">
             <div className="profile-identity__avatar">{profile.first_name?.charAt(0).toUpperCase()}</div>
             <div>
@@ -97,21 +110,32 @@ export default function ProfilePage() {
             <span className="profile-role">{profile.role}</span>
           </div>
 
+          {/* Personal Details Card */}
           <div className="profile-details">
             <div className="profile-details__header">
               <div>
                 <p className="dashboard-eyebrow">Personal details</p>
                 <h2>Profile information</h2>
               </div>
-              {!isEditing && (
+              <div className="profile-details__actions">
                 <button
                   type="button"
-                  className="profile-btn-edit"
-                  onClick={() => setIsEditing(true)}
+                  className="profile-btn-password"
+                  onClick={() => setIsPasswordModalOpen(true)}
                 >
-                  Edit Profile
+                  <LockIcon />
+                  Change Password
                 </button>
-              )}
+                {!isEditing && (
+                  <button
+                    type="button"
+                    className="profile-btn-edit"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit Profile
+                  </button>
+                )}
+              </div>
             </div>
 
             {saveSuccess && (
@@ -203,6 +227,12 @@ export default function ProfilePage() {
           </div>
         </section>
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
     </DashboardLayout>
   );
 }

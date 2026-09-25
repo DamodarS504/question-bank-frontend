@@ -119,3 +119,48 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Security & Password Card & Actions */
+.profile-details__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-btn-password {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1.5px solid rgba(13, 148, 136, 0.28);
+  background: #f0fdf9;
+  color: var(--teal);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-btn-password:hover {
+  background: #e0f8f1;
+  border-color: var(--teal);
+  transform: translateY(-1px);
+}
+
+.profile-btn-password svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+@media (max-width: 680px) {
+  .profile-details__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+
+

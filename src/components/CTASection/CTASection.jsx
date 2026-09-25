@@ -46,7 +46,7 @@ export default function CTASection() {
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>
-            <a href="#how-it-works" className="btn-outline" id="cta-flow-btn">View Roadmap</a>
+            <a href="#benefits" className="btn-outline" id="cta-flow-btn">Learn More</a>
           </div>
         </div>
 

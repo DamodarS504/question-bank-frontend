@@ -18,7 +18,7 @@ export const employeesApi = authApi.injectEndpoints({
         delete otherParams.employee_id;
 
         const result = await baseQuery({
-          url: '/api/v1/employees/employees',
+          url: '/api/v1/employees',
           method: 'GET',
           params: {
             ...otherParams,
@@ -30,6 +30,25 @@ export const employeesApi = authApi.injectEndpoints({
       },
       providesTags: ['Employees'],
     }),
+    deleteEmployee: builder.mutation({
+      queryFn: async (arg, { getState }, extraOptions, baseQuery) => {
+        const state = getState();
+        const userId = typeof arg === 'object' && arg !== null ? (arg.userId ?? arg.id) : arg;
+        const current_employee_id =
+          (typeof arg === 'object' && arg !== null ? arg.employee_id : null) ||
+          state.auth?.user?.employee_id ||
+          authApi.endpoints.getProfile.select()(state)?.data?.employee_id;
+
+        const result = await baseQuery({
+          url: `/api/v1/employees/${userId}`,
+          method: 'DELETE',
+          params: current_employee_id ? { employee_id: current_employee_id } : {},
+        });
+
+        return result;
+      },
+      invalidatesTags: ['Employees'],
+    }),
     createEmployee: builder.mutation({
       queryFn: async (employeeData, { getState }, extraOptions, baseQuery) => {
         const state = getState();
@@ -39,7 +58,7 @@ export const employeesApi = authApi.injectEndpoints({
           employeeData.employee_id;
 
         const result = await baseQuery({
-          url: '/api/v1/employees/employees',
+          url: '/api/v1/employees',
           method: 'POST',
           params: {
             employee_id: current_employee_id,
@@ -86,6 +105,7 @@ export const employeesApi = authApi.injectEndpoints({
 
 export const {
   useGetEmployeesQuery,
+  useDeleteEmployeeMutation,
   useCreateEmployeeMutation,
   useUploadEmployeesMutation,
 } = employeesApi;
