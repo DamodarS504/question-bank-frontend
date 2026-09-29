@@ -64,7 +64,6 @@ export const authApi = createApi({
         url: '/api/v1/auth/logout',
         method: 'POST',
       }),
-      invalidatesTags: ['Profile'],
     }),
     getProfile: builder.query({
       query: () => '/api/v1/auth/current-user',

@@ -1,21 +1,11 @@
 import { useState, useMemo } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
-import { useGetProfileQuery, getApiErrorMessage } from '../../features/auth/authApi';
+import { getApiErrorMessage } from '../../features/auth/authApi';
 import UploadModal from './UploadModal';
 import './Questions.css';
 
 const ITEMS_PER_PAGE = 10;
-
-function normalizeQuestions(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.questions)) return data.questions;
-  if (Array.isArray(data.items)) return data.items;
-  if (Array.isArray(data.data)) return data.data;
-  if (Array.isArray(data.results)) return data.results;
-  return [];
-}
 
 function getDifficultyTone(diff) {
   if (!diff) return 'default';
@@ -48,17 +38,9 @@ export default function QuestionsPage() {
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: profile, isLoading: isProfileLoading } = useGetProfileQuery();
-  const employeeId = profile?.employee_id;
+  const { data, isLoading, isError, error, refetch } = useGetQuestionsQuery();
 
-  const { data, isLoading: isQuestionsLoading, isError, error, refetch } = useGetQuestionsQuery(
-    employeeId ? { employee_id: employeeId } : undefined,
-    { skip: !employeeId }
-  );
-
-  const isLoading = isProfileLoading || isQuestionsLoading;
-
-  const allQuestions = useMemo(() => normalizeQuestions(data), [data]);
+  const allQuestions = useMemo(() => data?.data ?? [], [data]);
 
   const filterOptions = useMemo(() => {
     const options = {
@@ -85,7 +67,6 @@ export default function QuestionsPage() {
     );
   }, [allQuestions]);
 
-  // Filtered questions
   const filtered = useMemo(() => {
     return allQuestions.filter((q) => {
       const text = (
@@ -133,12 +114,16 @@ export default function QuestionsPage() {
     selectedCloudPlatform,
   ]);
 
-  // Pagination slice
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
   const paginatedQuestions = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
+
+  const hasActiveFilters = Boolean(
+    search || selectedDifficulty !== 'all' || selectedTechnology !== 'all'
+      || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all'
+  );
 
   const toggleExpand = (id) => {
     setExpandedIds((prev) => {
@@ -223,8 +208,8 @@ export default function QuestionsPage() {
                 aria-label="Filter by technology"
               >
                 <option value="all">All Technologies</option>
-                {filterOptions.technology.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                {filterOptions.technology.map((technology) => (
+                  <option key={technology} value={technology}>{technology}</option>
                 ))}
               </select>
             )}
@@ -311,28 +296,13 @@ export default function QuestionsPage() {
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="qb-state-card">
-            <div className="qb-state-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-              </svg>
-            </div>
-            <h2>{search || selectedDifficulty !== 'all' || selectedTechnology !== 'all' || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all' ? 'No matching questions found' : 'No questions in the bank yet'}</h2>
+          <div className="qb-state-card qb-state-card--empty">
+            <h2>{hasActiveFilters ? 'No matching questions found' : 'No questions in the bank yet'}</h2>
             <p>
-              {search || selectedDifficulty !== 'all' || selectedTechnology !== 'all' || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all'
+              {hasActiveFilters
                 ? 'Try adjusting your search keywords or clear filters to see more results.'
-                : 'Upload a CSV, Excel, or JSON spreadsheet to populate the question bank for your learners.'}
+                : 'Questions added to the bank will appear here.'}
             </p>
-            <button
-              type="button"
-              className="qb-btn-upload"
-              onClick={() => setIsUploadOpen(true)}
-            >
-              Upload First Questions
-            </button>
           </div>
         ) : (
           <div className="qb-card">
@@ -432,7 +402,6 @@ export default function QuestionsPage() {
               </table>
             </div>
 
-            {/* Pagination controls */}
             {totalPages > 1 && (
               <div className="qb-pagination">
                 <span>
@@ -443,8 +412,8 @@ export default function QuestionsPage() {
                   <button
                     type="button"
                     className="qb-page-btn"
-                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+                    disabled={currentPage <= 1}
                   >
                     Previous
                   </button>
@@ -454,8 +423,8 @@ export default function QuestionsPage() {
                   <button
                     type="button"
                     className="qb-page-btn"
-                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))}
+                    disabled={currentPage >= totalPages}
                   >
                     Next
                   </button>

@@ -327,6 +327,10 @@
   max-width: 380px;
 }
 
+.qb-state-card--empty p {
+  margin-bottom: 0;
+}
+
 /* Pagination */
 .qb-pagination {
   display: flex;

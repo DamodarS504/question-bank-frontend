@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
-import { useGetProfileQuery } from '../../features/auth/authApi';
 
 function getQuestionCount(data) {
   if (!data) return 0;
@@ -31,12 +30,7 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
-  const { data: profile } = useGetProfileQuery();
-  const employeeId = profile?.employee_id;
-  const { data: questionsData } = useGetQuestionsQuery(
-    employeeId ? { employee_id: employeeId } : undefined,
-    { skip: !employeeId }
-  );
+  const { data: questionsData } = useGetQuestionsQuery();
   const totalQuestions = getQuestionCount(questionsData);
 
   return (

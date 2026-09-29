@@ -227,6 +227,10 @@
   margin: 0 0 20px;
 }
 
+.emp-state-empty--no-data p {
+  margin-bottom: 0;
+}
+
 .emp-modal-overlay {
   position: fixed;
   inset: 0;

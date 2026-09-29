@@ -3,66 +3,24 @@ import { authApi } from '../auth/authApi';
 export const employeesApi = authApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployees: builder.query({
-      queryFn: async (arg, { getState }, extraOptions, baseQuery) => {
-        const state = getState();
-        const employee_id =
-          (typeof arg === 'string' || typeof arg === 'number' ? arg : arg?.employee_id) ||
-          state.auth?.user?.employee_id ||
-          authApi.endpoints.getProfile.select()(state)?.data?.employee_id;
-
-        if (!employee_id) {
-          return { data: [] };
-        }
-
-        const otherParams = typeof arg === 'object' && arg !== null ? { ...arg } : {};
-        delete otherParams.employee_id;
-
-        const result = await baseQuery({
+      query: (params = {}) => ({
           url: '/api/v1/employees',
           method: 'GET',
-          params: {
-            ...otherParams,
-            employee_id,
-          },
-        });
-
-        return result;
-      },
+          params,
+        }),
       providesTags: ['Employees'],
     }),
     deleteEmployee: builder.mutation({
-      queryFn: async (arg, { getState }, extraOptions, baseQuery) => {
-        const state = getState();
-        const userId = typeof arg === 'object' && arg !== null ? (arg.userId ?? arg.id) : arg;
-        const current_employee_id =
-          (typeof arg === 'object' && arg !== null ? arg.employee_id : null) ||
-          state.auth?.user?.employee_id ||
-          authApi.endpoints.getProfile.select()(state)?.data?.employee_id;
-
-        const result = await baseQuery({
-          url: `/api/v1/employees/${userId}`,
+      query: (arg) => ({
+          url: `/api/v1/employees/${arg.userId ?? arg.id}`,
           method: 'DELETE',
-          params: current_employee_id ? { employee_id: current_employee_id } : {},
-        });
-
-        return result;
-      },
+        }),
       invalidatesTags: ['Employees'],
     }),
     createEmployee: builder.mutation({
-      queryFn: async (employeeData, { getState }, extraOptions, baseQuery) => {
-        const state = getState();
-        const current_employee_id =
-          state.auth?.user?.employee_id ||
-          authApi.endpoints.getProfile.select()(state)?.data?.employee_id ||
-          employeeData.employee_id;
-
-        const result = await baseQuery({
+      query: (employeeData) => ({
           url: '/api/v1/employees',
           method: 'POST',
-          params: {
-            employee_id: current_employee_id,
-          },
           body: {
             employee_id: employeeData.employee_id,
             first_name: employeeData.first_name,
@@ -72,10 +30,7 @@ export const employeesApi = authApi.injectEndpoints({
             base_location: employeeData.base_location,
             competency: employeeData.competency,
           },
-        });
-
-        return result;
-      },
+        }),
       invalidatesTags: ['Employees'],
     }),
     uploadEmployees: builder.mutation({

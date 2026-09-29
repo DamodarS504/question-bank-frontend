@@ -4,7 +4,7 @@ import {
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
 } from '../../features/employees/employeesApi';
-import { useGetProfileQuery, getApiErrorMessage } from '../../features/auth/authApi';
+import { getApiErrorMessage } from '../../features/auth/authApi';
 import UploadEmployeeModal from './UploadEmployeeModal';
 import CreateEmployeeModal from './CreateEmployeeModal';
 import './Employees.css';
@@ -18,16 +18,6 @@ function TrashIcon() {
       <line x1="14" y1="11" x2="14" y2="17" />
     </svg>
   );
-}
-
-function normalizeEmployees(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.data)) return data.data;
-  if (Array.isArray(data.employees)) return data.employees;
-  if (Array.isArray(data.items)) return data.items;
-  if (Array.isArray(data.results)) return data.results;
-  return [];
 }
 
 export default function EmployeesPage() {
@@ -50,9 +40,6 @@ export default function EmployeesPage() {
 
   const [deleteEmployee, { isLoading: isDeleting }] = useDeleteEmployeeMutation();
 
-  const { data: profile } = useGetProfileQuery();
-  const employeeId = profile?.employee_id;
-
   /* Debounce search input */
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -64,9 +51,7 @@ export default function EmployeesPage() {
 
   /* Build query arguments for GET /api/v1/employees */
   const queryArgs = useMemo(() => {
-    if (!employeeId) return undefined;
     return {
-      employee_id: employeeId,
       page,
       size,
       search: debouncedSearch || undefined,
@@ -74,13 +59,11 @@ export default function EmployeesPage() {
       base_location: baseLocation || undefined,
       is_active: isActive !== '' ? isActive === 'true' : undefined,
     };
-  }, [employeeId, page, size, debouncedSearch, competency, baseLocation, isActive]);
+  }, [page, size, debouncedSearch, competency, baseLocation, isActive]);
 
-  const { data, isLoading, isError, error, isFetching } = useGetEmployeesQuery(queryArgs, {
-    skip: !employeeId,
-  });
+  const { data, isLoading, isError, error, isFetching } = useGetEmployeesQuery(queryArgs);
 
-  const employees = useMemo(() => normalizeEmployees(data), [data]);
+  const employees = useMemo(() => data?.data ?? [], [data]);
   const totalRecords = data?.total_records ?? employees.length;
   const totalPages = data?.total_pages ?? Math.max(1, Math.ceil(totalRecords / size));
 
@@ -92,7 +75,6 @@ export default function EmployeesPage() {
       const idToDelete = employeeToDelete.id ?? employeeToDelete.employee_id;
       await deleteEmployee({
         userId: idToDelete,
-        employee_id: employeeId,
       }).unwrap();
 
       const name = `${employeeToDelete.first_name} ${employeeToDelete.last_name || ''}`.trim();
@@ -275,42 +257,13 @@ export default function EmployeesPage() {
           </div>
         ) : employees.length === 0 ? (
           <div className="emp-card">
-            <div className="emp-state-empty">
-              <div className="emp-state-icon">👥</div>
+            <div className="emp-state-empty emp-state-empty--no-data">
               <h3>{hasActiveFilters ? 'No matching employees found' : 'No employees in directory yet'}</h3>
               <p>
                 {hasActiveFilters
                   ? 'Try searching with different keywords or clearing your filters.'
-                  : 'Get started by creating an individual employee record or uploading a batch CSV/Excel file.'}
+                  : 'Employee records added to the directory will appear here.'}
               </p>
-              <div className="emp-action-buttons">
-                {hasActiveFilters ? (
-                  <button
-                    type="button"
-                    className="emp-btn-upload"
-                    onClick={handleClearFilters}
-                  >
-                    Reset Filters
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      className="emp-btn-upload"
-                      onClick={() => setIsUploadOpen(true)}
-                    >
-                      Upload Batch
-                    </button>
-                    <button
-                      type="button"
-                      className="emp-btn-create"
-                      onClick={() => setIsCreateOpen(true)}
-                    >
-                      Create First Employee
-                    </button>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         ) : (
