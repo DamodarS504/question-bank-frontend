@@ -161,7 +161,7 @@ export default function LoginPage() {
             <div className={`auth-field ${errors.password ? 'auth-field--error' : ''}`}>
               <div className="auth-label-row">
                 <label className="auth-label" htmlFor="login-password">Password</label>
-                <a href="#" className="auth-forgot" id="login-forgot">Forgot password?</a>
+                {/* <a href="#" className="auth-forgot" id="login-forgot">Forgot password?</a> */}
               </div>
               <div className="auth-input-wrap">
                 <span className="auth-input-icon">

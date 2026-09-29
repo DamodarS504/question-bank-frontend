@@ -251,16 +251,20 @@ export default function SignupPage() {
                     <circle cx="12" cy="10" r="3" />
                   </svg>
                 </span>
-                <input
+                <select
                   id="signup-location"
-                  type="text"
                   name="baseLocation"
                   className="auth-input"
-                  placeholder="e.g. Indore, Pune, Hyderabad"
                   value={form.baseLocation}
                   onChange={handleChange}
-                  autoComplete="address-level2"
-                />
+                  required
+                >
+                  <option value="">Select base location</option>
+                  <option value="Indore">Indore</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Bangalore">Bangalore</option>
+                </select>
               </div>
               {errors.baseLocation && <p className="auth-error" role="alert">{errors.baseLocation}</p>}
             </div>

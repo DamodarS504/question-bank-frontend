@@ -135,7 +135,7 @@ export default function QuestionsPage() {
   };
 
   return (
-    <DashboardLayout title="Question Bank" eyebrow="Administration">
+    <DashboardLayout title="Question Bank" eyebrow="Administration" allowedRoles={['ADMIN']}>
       <div className="qb-container">
         {/* Top Header */}
         <div className="qb-header">

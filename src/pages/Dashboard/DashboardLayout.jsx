@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { logout, setUser } from '../../features/auth/authSlice';
+import { getUserRole, logout, setUser } from '../../features/auth/authSlice';
 import { useGetProfileQuery, useLogoutApiMutation } from '../../features/auth/authApi';
 import './Dashboard.css';
 
@@ -38,12 +38,13 @@ function UsersIcon() {
   );
 }
 
-export default function DashboardLayout({ children, title, eyebrow }) {
+export default function DashboardLayout({ children, title, eyebrow, allowedRoles }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [logoutApi] = useLogoutApiMutation();
   const { data: profile, isLoading, isError } = useGetProfileQuery();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const role = getUserRole(profile);
 
   useEffect(() => {
     if (profile) {
@@ -72,6 +73,10 @@ export default function DashboardLayout({ children, title, eyebrow }) {
     return <Navigate to="/login" replace />;
   }
 
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
@@ -86,14 +91,24 @@ export default function DashboardLayout({ children, title, eyebrow }) {
             <HomeIcon />
             Dashboard
           </NavLink>
-          <NavLink to="/questions" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
-            <QuestionIcon />
-            Question Bank
-          </NavLink>
-          <NavLink to="/employees" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
-            <UsersIcon />
-            Employees
-          </NavLink>
+          {role === 'ADMIN' && (
+            <>
+              <NavLink to="/questions" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
+                <QuestionIcon />
+                Question Bank
+              </NavLink>
+              <NavLink to="/employees" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
+                <UsersIcon />
+                Employees
+              </NavLink>
+            </>
+          )}
+          {role === 'EMPLOYEE' && (
+            <NavLink to="/assigned-questions" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
+              <QuestionIcon />
+              Assigned Questions
+            </NavLink>
+          )}
         </nav>
 
         <div className="dashboard-sidebar__bottom">

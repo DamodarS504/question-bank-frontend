@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
+import { getUserRole } from '../../features/auth/authSlice';
+import { useGetProfileQuery } from '../../features/auth/authApi';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
 
 function getQuestionCount(data) {
@@ -30,7 +32,9 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
-  const { data: questionsData } = useGetQuestionsQuery();
+  const { data: profile } = useGetProfileQuery();
+  const isAdmin = getUserRole(profile) === 'ADMIN';
+  const { data: questionsData } = useGetQuestionsQuery(undefined, { skip: !isAdmin });
   const totalQuestions = getQuestionCount(questionsData);
 
   return (
@@ -38,7 +42,7 @@ export default function DashboardPage() {
       <div className="dashboard-overview-grid">
         <section className="dashboard-stats" aria-label="Summary statistics">
           {summaryCards.map((card) => {
-            const val = card.key === 'questions' ? (totalQuestions || '-') : '-';
+            const val = isAdmin && card.key === 'questions' ? (totalQuestions || '-') : '-';
             return (
               <article className={`dashboard-stat-card dashboard-stat-card--${card.tone}`} key={card.label}>
                 <span className="dashboard-stat-card__icon" aria-hidden="true">{card.icon}</span>
@@ -51,34 +55,51 @@ export default function DashboardPage() {
             );
           })}
 
-          <article className="dashboard-stat-card dashboard-stat-card--teal dashboard-stat-card--dashed">
-            <span className="dashboard-stat-card__icon" aria-hidden="true">📂</span>
-            <div>
-              <span className="dashboard-stat-card__value">
-                <Link to="/questions" className="dashboard-card-link">
-                  Go to Bank &rarr;
-                </Link>
-              </span>
-              <h2>Question Bank</h2>
-              <p>Upload files &amp; explore</p>
-            </div>
-          </article>
+          {isAdmin ? (
+            <>
+              <article className="dashboard-stat-card dashboard-stat-card--teal dashboard-stat-card--dashed">
+                <span className="dashboard-stat-card__icon" aria-hidden="true">📂</span>
+                <div>
+                  <span className="dashboard-stat-card__value">
+                    <Link to="/questions" className="dashboard-card-link">
+                      Go to Bank &rarr;
+                    </Link>
+                  </span>
+                  <h2>Question Bank</h2>
+                  <p>Upload files &amp; explore</p>
+                </div>
+              </article>
 
-          <article className="dashboard-stat-card dashboard-stat-card--mint dashboard-stat-card--dashed">
-            <span className="dashboard-stat-card__icon" aria-hidden="true">👥</span>
-            <div>
-              <span className="dashboard-stat-card__value">
-                <Link to="/employees" className="dashboard-card-link">
-                  Employees &rarr;
-                </Link>
-              </span>
-              <h2>Employees</h2>
-              <p>Upload &amp; manage directory</p>
-            </div>
-          </article>
+              <article className="dashboard-stat-card dashboard-stat-card--mint dashboard-stat-card--dashed">
+                <span className="dashboard-stat-card__icon" aria-hidden="true">👥</span>
+                <div>
+                  <span className="dashboard-stat-card__value">
+                    <Link to="/employees" className="dashboard-card-link">
+                      Employees &rarr;
+                    </Link>
+                  </span>
+                  <h2>Employees</h2>
+                  <p>Upload &amp; manage directory</p>
+                </div>
+              </article>
+            </>
+          ) : (
+            <article className="dashboard-stat-card dashboard-stat-card--teal dashboard-stat-card--dashed">
+              <span className="dashboard-stat-card__icon" aria-hidden="true">📋</span>
+              <div>
+                <span className="dashboard-stat-card__value">
+                  <Link to="/assigned-questions" className="dashboard-card-link">
+                    View assignments &rarr;
+                  </Link>
+                </span>
+                <h2>Assigned Questions</h2>
+                <p>Questions selected for your preparation</p>
+              </div>
+            </article>
+          )}
         </section>
 
-        <aside className="dashboard-side-column">
+        {isAdmin ? <aside className="dashboard-side-column">
           <section className="dashboard-panel dashboard-completion" aria-labelledby="completion-title">
             <h2 id="completion-title">Overall Completion</h2>
             <div className="completion-ring" aria-label="Completion data unavailable">
@@ -104,7 +125,12 @@ export default function DashboardPage() {
               ))}
             </div>
           </section>
-        </aside>
+        </aside> : <aside className="dashboard-side-column">
+          <section className="dashboard-panel dashboard-activity" aria-labelledby="assignments-title">
+            <h2 id="assignments-title">Your preparation</h2>
+            <p>Open Assigned Questions to review the questions selected for you.</p>
+          </section>
+        </aside>}
       </div>
     </DashboardLayout>
   );

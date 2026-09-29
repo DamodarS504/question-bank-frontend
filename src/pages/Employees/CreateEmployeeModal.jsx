@@ -162,16 +162,21 @@ export default function CreateEmployeeModal({ isOpen, onClose }) {
               </div>
 
               <div className="auth-field">
-                <label className="auth-label">Base Location *</label>
-                <input
-                  type="text"
+                <label className="auth-label" htmlFor="employee-base-location">Base Location *</label>
+                <select
+                  id="employee-base-location"
                   name="base_location"
                   className="auth-input"
-                  placeholder="e.g. Indore"
                   value={form.base_location}
                   onChange={handleChange}
                   required
-                />
+                >
+                  <option value="">Select base location</option>
+                  <option value="Indore">Indore</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Bangalore">Bangalore</option>
+                </select>
               </div>
 
               <div className="auth-field emp-field-full">

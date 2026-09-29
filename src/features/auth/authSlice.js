@@ -7,6 +7,10 @@ const initialState = {
   isAuthenticated: false,
 };
 
+export function getUserRole(user) {
+  return String(user?.role ?? '').trim().toUpperCase();
+}
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,

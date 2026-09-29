@@ -11,6 +11,7 @@ import DashboardPage from './pages/Dashboard/DashboardPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import QuestionsPage from './pages/Questions/QuestionsPage';
 import EmployeesPage from './pages/Employees/EmployeesPage';
+import AssignedQuestionsPage from './pages/AssignedQuestions/AssignedQuestionsPage';
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/questions" element={<QuestionsPage />} />
       <Route path="/employees" element={<EmployeesPage />} />
+      <Route path="/assigned-questions" element={<AssignedQuestionsPage />} />
     </Routes>
   );
 }

@@ -103,7 +103,7 @@ export default function EmployeesPage() {
   );
 
   return (
-    <DashboardLayout title="Employees" eyebrow="Administration">
+    <DashboardLayout title="Employees" eyebrow="Administration" allowedRoles={['ADMIN']}>
       <div className="emp-container">
         {/* Header Action Card */}
         <div className="emp-header-actions">
