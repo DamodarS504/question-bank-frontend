@@ -452,6 +452,7 @@
   transition: all 0.2s ease;
 }
 
+
 .emp-btn-delete:hover:not(:disabled) {
   background: #ffe4e6;
   border-color: #f43f5e;

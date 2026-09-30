@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
 import { getApiErrorMessage } from '../../features/auth/authApi';
+import QuestionAssignmentModal from './QuestionAssignmentModal';
 import UploadModal from './UploadModal';
 import './Questions.css';
 
@@ -27,8 +28,17 @@ function formatCreatedAt(value) {
   });
 }
 
+function getQuestionId(question) {
+  const id = question.question_id ?? question.id ?? question._id;
+  if (id == null || id === '') return null;
+  const numericId = Number(id);
+  return Number.isInteger(numericId) ? numericId : null;
+}
+
 export default function QuestionsPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState(new Set());
   const [search, setSearch] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
   const [selectedTechnology, setSelectedTechnology] = useState('all');
@@ -120,6 +130,21 @@ export default function QuestionsPage() {
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
 
+  const assignableQuestions = useMemo(
+    () => allQuestions
+      .filter((question) => selectedQuestionIds.has(getQuestionId(question)))
+      .map((question) => ({
+        id: getQuestionId(question),
+        title: question.question || question.question_text || question.title || question.prompt || 'Untitled Question',
+      })),
+    [allQuestions, selectedQuestionIds],
+  );
+  const visibleQuestionIds = paginatedQuestions
+    .map(getQuestionId)
+    .filter((id) => id !== null);
+  const allVisibleSelected = visibleQuestionIds.length > 0
+    && visibleQuestionIds.every((id) => selectedQuestionIds.has(id));
+
   const hasActiveFilters = Boolean(
     search || selectedDifficulty !== 'all' || selectedTechnology !== 'all'
       || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all'
@@ -134,6 +159,25 @@ export default function QuestionsPage() {
     });
   };
 
+  const toggleQuestionSelection = (id) => {
+    if (id === null) return;
+    setSelectedQuestionIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      if (nextIds.has(id)) nextIds.delete(id);
+      else nextIds.add(id);
+      return nextIds;
+    });
+  };
+
+  const toggleVisibleQuestions = () => {
+    setSelectedQuestionIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      if (allVisibleSelected) visibleQuestionIds.forEach((id) => nextIds.delete(id));
+      else visibleQuestionIds.forEach((id) => nextIds.add(id));
+      return nextIds;
+    });
+  };
+
   return (
     <DashboardLayout title="Question Bank" eyebrow="Administration" allowedRoles={['ADMIN']}>
       <div className="qb-container">
@@ -144,6 +188,24 @@ export default function QuestionsPage() {
             <p>View, search, and manage interview questions across all tech stacks</p>
           </div>
           <div className="qb-header__actions">
+            {selectedQuestionIds.size > 0 && (
+              <>
+                <button
+                  type="button"
+                  className="qb-btn-assign"
+                  onClick={() => setIsAssignOpen(true)}
+                >
+                  Assign {selectedQuestionIds.size} {selectedQuestionIds.size === 1 ? 'question' : 'questions'}
+                </button>
+                <button
+                  type="button"
+                  className="qb-clear-selection"
+                  onClick={() => setSelectedQuestionIds(new Set())}
+                >
+                  Clear selection
+                </button>
+              </>
+            )}
             <button
               type="button"
               className="qb-btn-upload"
@@ -310,6 +372,15 @@ export default function QuestionsPage() {
               <table className="qb-table">
                 <thead>
                   <tr>
+                    <th className="qb-selection-cell">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleVisibleQuestions}
+                        aria-label="Select all visible questions"
+                        disabled={visibleQuestionIds.length === 0}
+                      />
+                    </th>
                     <th className="qb-col-num">#</th>
                     <th>Question</th>
                     <th>Technology</th>
@@ -336,9 +407,20 @@ export default function QuestionsPage() {
                     const rating = q.rating ?? '—';
                     const isExpanded = expandedIds.has(rowId);
                     const displayIndex = (currentPage - 1) * ITEMS_PER_PAGE + idx + 1;
+                    const questionId = getQuestionId(q);
+                    const isSelected = questionId !== null && selectedQuestionIds.has(questionId);
 
                     return (
                       <tr key={rowId}>
+                        <td className="qb-selection-cell">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleQuestionSelection(questionId)}
+                            aria-label={`Select question ${displayIndex}`}
+                            disabled={questionId === null}
+                          />
+                        </td>
                         <td className="qb-col-num">{displayIndex}</td>
                         <td className="qb-col-question">
                           <p className="qb-question-title">{questionText}</p>
@@ -439,6 +521,13 @@ export default function QuestionsPage() {
           isOpen={isUploadOpen}
           onClose={() => setIsUploadOpen(false)}
         />
+        {isAssignOpen && (
+          <QuestionAssignmentModal
+            questions={assignableQuestions}
+            onClose={() => setIsAssignOpen(false)}
+            onAssigned={() => setSelectedQuestionIds(new Set())}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

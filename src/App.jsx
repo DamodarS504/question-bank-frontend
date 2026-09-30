@@ -12,12 +12,15 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import QuestionsPage from './pages/Questions/QuestionsPage';
 import EmployeesPage from './pages/Employees/EmployeesPage';
 import AssignedQuestionsPage from './pages/AssignedQuestions/AssignedQuestionsPage';
+import { ForgotPasswordPage, ResetPasswordPage } from './pages/PasswordRecoveryPages';
 
 export default function App() {
   return (
     <Routes>
       <Route path="/"       element={<LandingPage />} />
       <Route path="/login"  element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/profile" element={<ProfilePage />} />

@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery,
-  tagTypes: ['Profile', 'Questions', 'Employees'],
+  tagTypes: ['Profile', 'Questions', 'Employees', 'Assignments'],
   endpoints: (builder) => ({
     signup: builder.mutation({
       query: (body) => ({
@@ -59,6 +59,20 @@ export const authApi = createApi({
       },
       invalidatesTags: ['Profile'],
     }),
+    forgotPassword: builder.mutation({
+      query: (body) => ({
+        url: '/api/v1/auth/forgot-password',
+        method: 'POST',
+        body,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (body) => ({
+        url: '/api/v1/auth/reset-password',
+        method: 'POST',
+        body,
+      }),
+    }),
     logoutApi: builder.mutation({
       query: () => ({
         url: '/api/v1/auth/logout',
@@ -77,6 +91,22 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Profile'],
     }),
+    updateProfilePic: builder.mutation({
+      query: (file) => {
+        const body = new FormData();
+        body.append('file', file);
+
+        return {
+          url: '/api/v1/auth/update-profile-pic',
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body,
+        };
+      },
+      invalidatesTags: ['Profile'],
+    }),
     changePassword: builder.mutation({
       query: (body) => ({
         url: '/api/v1/auth/change-password',
@@ -90,9 +120,12 @@ export const authApi = createApi({
 export const {
   useSignupMutation,
   useLoginMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
   useLogoutApiMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
+  useUpdateProfilePicMutation,
   useChangePasswordMutation,
 } = authApi;
 

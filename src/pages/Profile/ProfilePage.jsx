@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import {
   getApiErrorMessage,
   useGetProfileQuery,
   useUpdateProfileMutation,
+  useUpdateProfilePicMutation,
 } from '../../features/auth/authApi';
 import ChangePasswordModal from './ChangePasswordModal';
 import './Profile.css';
@@ -29,17 +30,22 @@ function ProfileRow({ label, value }) {
 export default function ProfilePage() {
   const { data: profile, isLoading, isError, error } = useGetProfileQuery();
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  const [updateProfilePic, { isLoading: isPictureUploading }] = useUpdateProfilePicMutation();
+  const profilePictureInputRef = useRef(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
+  const [pictureError, setPictureError] = useState('');
+  const [pictureSuccess, setPictureSuccess] = useState('');
 
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
     employee_id: '',
     base_location: '',
+    gender: '',
   });
 
   useEffect(() => {
@@ -49,6 +55,7 @@ export default function ProfilePage() {
         last_name: profile.last_name || '',
         employee_id: profile.employee_id || '',
         base_location: profile.base_location || '',
+        gender: profile.gender || '',
       });
     }
   }, [profile]);
@@ -71,12 +78,34 @@ export default function ProfilePage() {
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
         base_location: form.base_location.trim(),
+        gender: form.gender.trim(),
       }).unwrap();
 
       setSaveSuccess('Profile updated successfully.');
       setIsEditing(false);
     } catch (err) {
       setSaveError(getApiErrorMessage(err));
+    }
+  };
+
+  const handleProfilePictureChange = async (event) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    setPictureError('');
+    setPictureSuccess('');
+    if (!file.type.startsWith('image/')) {
+      setPictureError('Choose an image file to upload.');
+      return;
+    }
+
+    try {
+      await updateProfilePic(file).unwrap();
+      setPictureSuccess('Profile picture updated successfully.');
+    } catch (uploadError) {
+      setPictureError(getApiErrorMessage(uploadError));
     }
   };
 
@@ -89,6 +118,7 @@ export default function ProfilePage() {
         last_name: profile.last_name || '',
         employee_id: profile.employee_id || '',
         base_location: profile.base_location || '',
+        gender: profile.gender || '',
       });
     }
   };
@@ -101,7 +131,37 @@ export default function ProfilePage() {
         <section className="profile-content">
           {/* Identity Column */}
           <div className="profile-identity">
-            <div className="profile-identity__avatar">{profile.first_name?.charAt(0).toUpperCase()}</div>
+            <button
+              type="button"
+              className="profile-identity__avatar profile-identity__avatar--button"
+              onClick={() => profilePictureInputRef.current?.click()}
+              disabled={isPictureUploading}
+              aria-label={isPictureUploading ? 'Uploading profile picture' : 'Upload profile picture'}
+              title="Upload profile picture"
+            >
+              {profile.profile_pic ? (
+                <img src={profile.profile_pic} alt={`${profile.first_name}'s profile`} />
+              ) : (
+                profile.first_name?.charAt(0).toUpperCase()
+              )}
+              <span className="profile-identity__avatar-action" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 5h-4L8 8H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-3l-2-3Z" />
+                  <circle cx="12" cy="13" r="3" />
+                </svg>
+              </span>
+            </button>
+            <input
+              ref={profilePictureInputRef}
+              className="profile-picture-input"
+              type="file"
+              accept="image/*"
+              onChange={handleProfilePictureChange}
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+            {pictureError && <p className="profile-picture-message profile-picture-message--error" role="alert">{pictureError}</p>}
+            {pictureSuccess && <p className="profile-picture-message" role="status">{pictureSuccess}</p>}
             <div>
               <p className="dashboard-eyebrow">Account profile</p>
               <h2>{profile.first_name} {profile.last_name || ''}</h2>
@@ -194,6 +254,22 @@ export default function ProfilePage() {
                       onChange={handleChange}
                     />
                   </div>
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="profile-gender">Gender</label>
+                    <select
+                      id="profile-gender"
+                      name="gender"
+                      className="auth-input"
+                      value={form.gender}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="profile-form-actions">
@@ -221,6 +297,7 @@ export default function ProfilePage() {
                 <ProfileRow label="Email address" value={profile.email} />
                 <ProfileRow label="Employee ID" value={profile.employee_id} />
                 <ProfileRow label="Base location" value={profile.base_location} />
+                <ProfileRow label="Gender" value={profile.gender} />
                 <ProfileRow label="Account status" value={profile.is_active ? 'Active' : 'Inactive'} />
               </dl>
             )}

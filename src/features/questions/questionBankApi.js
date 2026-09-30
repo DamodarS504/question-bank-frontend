@@ -9,6 +9,13 @@ export const questionBankApi = authApi.injectEndpoints({
       }),
       providesTags: ['Questions'],
     }),
+    getAssignments: builder.query({
+      query: () => ({
+        url: '/api/v1/question-bank/list-assignments',
+        method: 'GET',
+      }),
+      providesTags: ['Assignments'],
+    }),
     uploadQuestions: builder.mutation({
       query: (fileOrFormData) => {
         let body;
@@ -30,8 +37,25 @@ export const questionBankApi = authApi.injectEndpoints({
       },
       invalidatesTags: ['Questions'],
     }),
+    assignQuestions: builder.mutation({
+      query: ({ userIds, questionIds, assignedDate }) => ({
+        url: '/api/v1/question-bank/assign-questions',
+        method: 'POST',
+        body: {
+          user_id: userIds,
+          question_ids: questionIds,
+          assigned_date: assignedDate,
+        },
+      }),
+      invalidatesTags: ['Assignments'],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetQuestionsQuery, useUploadQuestionsMutation } = questionBankApi;
+export const {
+  useGetQuestionsQuery,
+  useGetAssignmentsQuery,
+  useUploadQuestionsMutation,
+  useAssignQuestionsMutation,
+} = questionBankApi;
