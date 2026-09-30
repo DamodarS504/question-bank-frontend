@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
 import { getApiErrorMessage } from '../../features/auth/authApi';
+import EmployeeAnswerEditor from './EmployeeAnswerEditor';
 import QuestionAssignmentModal from './QuestionAssignmentModal';
 import UploadModal from './UploadModal';
 import './Questions.css';
@@ -451,6 +452,9 @@ export default function QuestionsPage() {
                                 </div>
                               )}
                             </>
+                          )}
+                          {questionId !== null && (
+                            <EmployeeAnswerEditor questionId={questionId} questionTitle={questionText} />
                           )}
                         </td>
                         <td>

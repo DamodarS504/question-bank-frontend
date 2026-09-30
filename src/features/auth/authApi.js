@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery,
-  tagTypes: ['Profile', 'Questions', 'Employees', 'Assignments'],
+  tagTypes: ['Profile', 'Questions', 'Employees', 'Assignments', 'EmployeeAnswers'],
   endpoints: (builder) => ({
     signup: builder.mutation({
       query: (body) => ({

@@ -16,6 +16,45 @@ export const questionBankApi = authApi.injectEndpoints({
       }),
       providesTags: ['Assignments'],
     }),
+    getEmployeeAnswer: builder.query({
+      query: ({ question_id }) => ({
+        url: '/api/v1/question/answers',
+        method: 'GET',
+        params: { question_id },
+      }),
+      providesTags: (result, error, { question_id }) => [
+        { type: 'EmployeeAnswers', id: question_id },
+      ],
+    }),
+    submitEmployeeAnswer: builder.mutation({
+      query: ({ question_id, answer, answer_rating }) => ({
+        url: '/api/v1/question/answer',
+        method: 'POST',
+        body: { question_id, answer, answer_rating },
+      }),
+      invalidatesTags: (result, error, { question_id }) => [
+        { type: 'EmployeeAnswers', id: question_id },
+      ],
+    }),
+    updateEmployeeAnswer: builder.mutation({
+      query: ({ answer_id, answer, answer_rating }) => ({
+        url: `/api/v1/question/answer/${answer_id}`,
+        method: 'PUT',
+        body: { answer, answer_rating },
+      }),
+      invalidatesTags: (result, error, { question_id }) => [
+        { type: 'EmployeeAnswers', id: question_id },
+      ],
+    }),
+    deleteEmployeeAnswer: builder.mutation({
+      query: ({ answer_id }) => ({
+        url: `/api/v1/question/answer/${answer_id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { question_id }) => [
+        { type: 'EmployeeAnswers', id: question_id },
+      ],
+    }),
     uploadQuestions: builder.mutation({
       query: (fileOrFormData) => {
         let body;
@@ -56,6 +95,11 @@ export const questionBankApi = authApi.injectEndpoints({
 export const {
   useGetQuestionsQuery,
   useGetAssignmentsQuery,
+  useGetEmployeeAnswerQuery,
+  useLazyGetEmployeeAnswerQuery,
+  useSubmitEmployeeAnswerMutation,
+  useUpdateEmployeeAnswerMutation,
+  useDeleteEmployeeAnswerMutation,
   useUploadQuestionsMutation,
   useAssignQuestionsMutation,
 } = questionBankApi;

@@ -298,6 +298,7 @@ export default function ProfilePage() {
                 <ProfileRow label="Employee ID" value={profile.employee_id} />
                 <ProfileRow label="Base location" value={profile.base_location} />
                 <ProfileRow label="Gender" value={profile.gender} />
+                <ProfileRow label="Competency" value={profile.competency} />
                 <ProfileRow label="Account status" value={profile.is_active ? 'Active' : 'Inactive'} />
               </dl>
             )}

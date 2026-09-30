@@ -15,9 +15,9 @@ export default function Hero() {
     const handleMouseMove = (e) => {
       if (!heroRef.current) return;
       const { clientX, clientY, currentTarget } = e;
-      const { width, height } = currentTarget.getBoundingClientRect();
-      const x = (clientX / width - 0.5) * 20;
-      const y = (clientY / height - 0.5) * 20;
+      const { left, top, width, height } = currentTarget.getBoundingClientRect();
+      const x = ((clientX - left) / width - 0.5) * 20;
+      const y = ((clientY - top) / height - 0.5) * 20;
       heroRef.current.style.setProperty('--mouse-x', `${x}px`);
       heroRef.current.style.setProperty('--mouse-y', `${y}px`);
     };

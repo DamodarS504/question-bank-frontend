@@ -1,14 +1,8 @@
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { getApiErrorMessage } from '../../features/auth/authApi';
 import { useGetAssignmentsQuery } from '../../features/questions/questionBankApi';
+import EmployeeAnswerEditor from '../Questions/EmployeeAnswerEditor';
 import '../Questions/Questions.css';
-
-function formatDate(value) {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-}
 
 function getAssignmentQuestion(assignment) {
   const question = assignment.questions ?? assignment.question ?? {};
@@ -17,6 +11,14 @@ function getAssignmentQuestion(assignment) {
     || question.question_text
     || question.title
     || (questionId != null ? `Question #${questionId}` : 'Untitled Question');
+}
+
+function getAssignmentQuestionId(assignment) {
+  const question = assignment.questions ?? assignment.question ?? {};
+  const id = question.question_id ?? assignment.question_id;
+  if (id == null || id === '') return null;
+  const numericId = Number(id);
+  return Number.isInteger(numericId) ? numericId : null;
 }
 
 export default function AssignedQuestionsPage() {
@@ -61,59 +63,44 @@ export default function AssignedQuestionsPage() {
             <p>Questions assigned to you will appear here.</p>
           </div>
         ) : (
-          <div className="qb-card">
-            <div className="qb-table-wrap">
-              <table className="qb-table qb-assignment-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Question</th>
-                    <th>Assigned</th>
-                    <th>Status</th>
-                    <th>Bookmark</th>
-                    <th>Last updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignments.map((assignment, index) => {
-                    const status = assignment.status || 'Not Started';
-                    const statusClass = status.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                    const question = assignment.questions ?? assignment.question ?? {};
-                    const questionId = question.question_id ?? assignment.question_id;
-                    const framework = question.framework && question.framework.toLowerCase() !== 'nan'
-                      ? question.framework
-                      : null;
-                    const questionDetails = [
-                      question.client_name && `Client: ${question.client_name}`,
-                      question.difficulty_level && `Difficulty: ${question.difficulty_level}`,
-                      framework && `Framework: ${framework}`,
-                      question.cloud_platform && `Cloud: ${question.cloud_platform}`,
-                    ].filter(Boolean);
+          <div className="qb-card qb-assignment-list">
+            {assignments.map((assignment, index) => {
+              const question = assignment.questions ?? assignment.question ?? {};
+              const answerQuestionId = getAssignmentQuestionId(assignment);
+              const framework = question.framework && question.framework.toLowerCase() !== 'nan'
+                ? question.framework
+                : null;
+              const questionDetails = [
+                ['Client', question.client_name],
+                ['Difficulty', question.difficulty_level],
+                ['Framework', framework],
+                ['Cloud', question.cloud_platform],
+              ].filter(([, value]) => value);
 
-                    return (
-                      <tr key={assignment.id || `${questionId}-${index}`}>
-                        <td className="qb-col-num">{index + 1}</td>
-                        <td className="qb-col-question">
-                          <p className="qb-question-title">{getAssignmentQuestion(assignment)}</p>
-                          {questionDetails.length > 0 && (
-                            <div className="qb-assignment-meta">
-                              {questionDetails.map((detail) => <span key={detail}>{detail}</span>)}
-                            </div>
-                          )}
-                          {questionId != null && (
-                            <span className="qb-assignment-reference">Question ID: {questionId}</span>
-                          )}
-                        </td>
-                        <td className="qb-created-date">{formatDate(assignment.assigned_date)}</td>
-                        <td><span className={`qb-assignment-status qb-assignment-status--${statusClass}`}>{status}</span></td>
-                        <td>{assignment.is_bookmark ? 'Bookmarked' : '—'}</td>
-                        <td className="qb-created-date">{formatDate(assignment.updated_at)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+              return (
+                <article className="qb-assignment-item" key={assignment.id || answerQuestionId || index}>
+                  <span className="qb-assignment-number">{String(index + 1).padStart(2, '0')}</span>
+                  <div className="qb-assignment-content">
+                    <h2 className="qb-question-title">{getAssignmentQuestion(assignment)}</h2>
+                    {questionDetails.length > 0 && (
+                      <div className="qb-assignment-meta">
+                        {questionDetails.map(([label, value]) => (
+                          <span className="qb-assignment-tag" key={label}>
+                            <strong>{label}</strong> {value}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {answerQuestionId != null && (
+                      <EmployeeAnswerEditor
+                        questionId={answerQuestionId}
+                        questionTitle={getAssignmentQuestion(assignment)}
+                      />
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

@@ -42,6 +42,8 @@
 .hero__grid {
   position: absolute;
   inset: 0;
+  background-position: var(--mouse-x) var(--mouse-y);
+  transition: background-position 120ms ease-out;
   background-image:
     linear-gradient(rgba(13, 148, 136, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(13, 148, 136, 0.05) 1px, transparent 1px);
