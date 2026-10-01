@@ -374,15 +374,19 @@ export default function QuestionsPage() {
                 <thead>
                   <tr>
                     <th className="qb-selection-cell">
-                      <input
-                        type="checkbox"
-                        checked={allVisibleSelected}
-                        onChange={toggleVisibleQuestions}
-                        aria-label="Select all visible questions"
-                        disabled={visibleQuestionIds.length === 0}
-                      />
+                      <label className="qb-checkbox-wrap">
+                        <input
+                          type="checkbox"
+                          checked={allVisibleSelected}
+                          onChange={toggleVisibleQuestions}
+                          aria-label="Select all visible questions"
+                          disabled={visibleQuestionIds.length === 0}
+                        />
+                      </label>
                     </th>
-                    <th className="qb-col-num">#</th>
+                    <th className="qb-col-num">
+                      <span className="qb-num-wrap">#</span>
+                    </th>
                     <th>Question</th>
                     <th>Technology</th>
                     <th>Client</th>
@@ -412,21 +416,25 @@ export default function QuestionsPage() {
                     const isSelected = questionId !== null && selectedQuestionIds.has(questionId);
 
                     return (
-                      <tr key={rowId}>
+                      <tr key={rowId} className={isSelected ? 'qb-row--selected' : ''}>
                         <td className="qb-selection-cell">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleQuestionSelection(questionId)}
-                            aria-label={`Select question ${displayIndex}`}
-                            disabled={questionId === null}
-                          />
+                          <label className="qb-checkbox-wrap">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleQuestionSelection(questionId)}
+                              aria-label={`Select question ${displayIndex}`}
+                              disabled={questionId === null}
+                            />
+                          </label>
                         </td>
-                        <td className="qb-col-num">{displayIndex}</td>
+                        <td className="qb-col-num">
+                          <span className="qb-num-wrap">{displayIndex}</span>
+                        </td>
                         <td className="qb-col-question">
                           <p className="qb-question-title">{questionText}</p>
-                          {answerText && (
-                            <>
+                          <div className="qb-question-actions">
+                            {answerText && (
                               <button
                                 type="button"
                                 className="qb-answer-toggle"
@@ -446,15 +454,15 @@ export default function QuestionsPage() {
                                   <polyline points="6 9 12 15 18 9" />
                                 </svg>
                               </button>
-                              {isExpanded && (
-                                <div className="qb-answer-preview">
-                                  {answerText}
-                                </div>
-                              )}
-                            </>
-                          )}
-                          {questionId !== null && (
-                            <EmployeeAnswerEditor questionId={questionId} questionTitle={questionText} />
+                            )}
+                            {questionId !== null && (
+                              <EmployeeAnswerEditor questionId={questionId} questionTitle={questionText} />
+                            )}
+                          </div>
+                          {answerText && isExpanded && (
+                            <div className="qb-answer-preview">
+                              {answerText}
+                            </div>
                           )}
                         </td>
                         <td>

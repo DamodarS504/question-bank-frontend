@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getApiErrorMessage } from '../../features/auth/authApi';
+import { useSelector } from 'react-redux';
+import { getApiErrorMessage, useGetProfileQuery } from '../../features/auth/authApi';
 import {
   useDeleteEmployeeAnswerMutation,
   useLazyGetEmployeeAnswerQuery,
@@ -11,7 +12,84 @@ function getAnswerRecords(response) {
   return Array.isArray(response) ? response : [];
 }
 
+function getAnswerAuthorId(savedAnswer) {
+  if (!savedAnswer || typeof savedAnswer !== 'object') return null;
+  return (
+    savedAnswer.user_id
+    ?? savedAnswer.userId
+    ?? savedAnswer.employee_id
+    ?? savedAnswer.employeeId
+    ?? savedAnswer.created_by
+    ?? savedAnswer.createdBy
+    ?? savedAnswer.author_id
+    ?? savedAnswer.authorId
+    ?? savedAnswer.user?.id
+    ?? savedAnswer.user?.user_id
+    ?? savedAnswer.user?.employee_id
+    ?? savedAnswer.employee?.id
+    ?? savedAnswer.employee?.user_id
+    ?? savedAnswer.employee?.employee_id
+    ?? null
+  );
+}
+
+function getAnswerAuthorEmail(savedAnswer) {
+  if (!savedAnswer || typeof savedAnswer !== 'object') return null;
+  return (
+    savedAnswer.email
+    ?? savedAnswer.user_email
+    ?? savedAnswer.userEmail
+    ?? savedAnswer.author_email
+    ?? savedAnswer.user?.email
+    ?? savedAnswer.employee?.email
+    ?? null
+  );
+}
+
+export function canManageAnswer(savedAnswer, currentUser) {
+  if (!savedAnswer || !currentUser) return false;
+
+  // Explicit boolean flag if backend provides it
+  if (savedAnswer.is_owner === true || savedAnswer.isOwner === true || savedAnswer.is_mine === true || savedAnswer.can_edit === true) {
+    return true;
+  }
+  if (savedAnswer.is_owner === false || savedAnswer.isOwner === false || savedAnswer.is_mine === false || savedAnswer.can_edit === false) {
+    return false;
+  }
+
+  const answerAuthorId = getAnswerAuthorId(savedAnswer);
+  const answerAuthorEmail = getAnswerAuthorEmail(savedAnswer);
+
+  const currentUserId = currentUser.id ?? currentUser.user_id ?? currentUser.userId;
+  const currentEmployeeId = currentUser.employee_id ?? currentUser.employeeId;
+  const currentEmail = currentUser.email;
+
+  // ID matching (numeric or string)
+  if (answerAuthorId != null) {
+    const authorIdStr = String(answerAuthorId).trim().toLowerCase();
+    if (currentUserId != null && String(currentUserId).trim().toLowerCase() === authorIdStr) {
+      return true;
+    }
+    if (currentEmployeeId != null && String(currentEmployeeId).trim().toLowerCase() === authorIdStr) {
+      return true;
+    }
+  }
+
+  // Email matching
+  if (answerAuthorEmail && currentEmail) {
+    if (String(answerAuthorEmail).trim().toLowerCase() === String(currentEmail).trim().toLowerCase()) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
+  const { data: profile } = useGetProfileQuery();
+  const authUser = useSelector((state) => state.auth?.user);
+  const currentUser = profile || authUser;
+
   const [isOpen, setIsOpen] = useState(false);
   const [savedAnswers, setSavedAnswers] = useState([]);
   const [answer, setAnswer] = useState('');
@@ -90,18 +168,29 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
   };
 
   const handleStartEdit = (savedAnswer) => {
-    setEditingAnswerId(savedAnswer.answer_id);
+    if (!canManageAnswer(savedAnswer, currentUser)) {
+      setFormError('You can only edit answers written by you.');
+      return;
+    }
+    const answerId = savedAnswer.answer_id ?? savedAnswer.id;
+    setEditingAnswerId(answerId);
     setEditingAnswer(savedAnswer.answer ?? '');
     setEditingRating(String(savedAnswer.answer_rating ?? 0));
     setFormError('');
     setSuccessMessage('');
   };
 
-  const handleUpdate = async (event, answerId) => {
+  const handleUpdate = async (event, savedAnswer) => {
     event.preventDefault();
     setFormError('');
     setSuccessMessage('');
 
+    if (!canManageAnswer(savedAnswer, currentUser)) {
+      setFormError('You can only update answers written by you.');
+      return;
+    }
+
+    const answerId = savedAnswer.answer_id ?? savedAnswer.id;
     const answerRating = Number(editingRating);
     if (!editingAnswer.trim()) {
       setFormError('Enter an answer before saving.');
@@ -127,7 +216,12 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
     }
   };
 
-  const handleDelete = async (answerId) => {
+  const handleDelete = async (savedAnswer) => {
+    if (!canManageAnswer(savedAnswer, currentUser)) {
+      setFormError('You can only delete answers written by you.');
+      return;
+    }
+    const answerId = savedAnswer.answer_id ?? savedAnswer.id;
     if (!window.confirm('Delete this answer? This cannot be undone.')) return;
     setFormError('');
     setSuccessMessage('');
@@ -135,7 +229,7 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
     try {
       await deleteAnswer({ answer_id: answerId, question_id: questionId }).unwrap();
       setSavedAnswers((currentAnswers) => currentAnswers.filter(
-        (savedAnswer) => savedAnswer.answer_id !== answerId,
+        (item) => (item.answer_id ?? item.id) !== answerId,
       ));
       if (editingAnswerId === answerId) setEditingAnswerId(null);
       setSuccessMessage('Answer deleted.');
@@ -205,8 +299,9 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
                   ) : savedAnswers.length > 0 ? (
                     <div className="qba-saved-answers" aria-live="polite">
                       {savedAnswers.map((savedAnswer, index) => {
-                        const answerId = savedAnswer.answer_id;
+                        const answerId = savedAnswer.answer_id ?? savedAnswer.id;
                         const isEditing = editingAnswerId === answerId;
+                        const isOwner = canManageAnswer(savedAnswer, currentUser);
 
                         return (
                           <article
@@ -216,7 +311,7 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
                             {isEditing ? (
                               <form
                                 className="qba-answer-edit-form"
-                                onSubmit={(event) => handleUpdate(event, answerId)}
+                                onSubmit={(event) => handleUpdate(event, savedAnswer)}
                               >
                                 <label className="qba-answer-field">
                                   Answer
@@ -257,10 +352,15 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
                             ) : (
                               <>
                                 <p>{savedAnswer.answer}</p>
-                                {savedAnswer.answer_rating != null && (
-                                  <small>Rating: {savedAnswer.answer_rating}</small>
-                                )}
-                                {answerId != null && (
+                                <div className="qba-saved-answer-meta">
+                                  {savedAnswer.answer_rating != null && (
+                                    <small>Rating: {savedAnswer.answer_rating}</small>
+                                  )}
+                                  {isOwner && (
+                                    <span className="qba-owner-badge">Your response</span>
+                                  )}
+                                </div>
+                                {answerId != null && isOwner && (
                                   <div className="qba-answer-actions">
                                     <button
                                       type="button"
@@ -273,7 +373,7 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
                                     <button
                                       type="button"
                                       className="qba-answer-action qba-answer-action--delete"
-                                      onClick={() => handleDelete(answerId)}
+                                      onClick={() => handleDelete(savedAnswer)}
                                       disabled={isMutatingAnswer}
                                     >
                                       {isDeletingAnswer ? 'Deleting...' : 'Delete'}
