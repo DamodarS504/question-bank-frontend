@@ -3,9 +3,10 @@ import { authApi } from '../auth/authApi';
 export const questionBankApi = authApi.injectEndpoints({
   endpoints: (builder) => ({
     getQuestions: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: '/api/v1/question-bank/questions',
         method: 'GET',
+        params,
       }),
       providesTags: ['Questions'],
     }),

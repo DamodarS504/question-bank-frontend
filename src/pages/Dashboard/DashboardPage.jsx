@@ -6,13 +6,15 @@ import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
 
 function getQuestionCount(data) {
   if (!data) return 0;
+  if (typeof data.total === 'number') return data.total;
+  if (typeof data.total_records === 'number') return data.total_records;
+  if (typeof data.total_count === 'number') return data.total_count;
+  if (typeof data.count === 'number') return data.count;
   if (Array.isArray(data)) return data.length;
   if (Array.isArray(data.questions)) return data.questions.length;
   if (Array.isArray(data.items)) return data.items.length;
   if (Array.isArray(data.data)) return data.data.length;
   if (Array.isArray(data.results)) return data.results.length;
-  if (typeof data.count === 'number') return data.count;
-  if (typeof data.total === 'number') return data.total;
   return 0;
 }
 

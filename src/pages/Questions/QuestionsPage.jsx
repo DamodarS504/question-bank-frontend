@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
 import { getApiErrorMessage } from '../../features/auth/authApi';
@@ -40,7 +40,9 @@ export default function QuestionsPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState(new Set());
+  const [selectedQuestionsCache, setSelectedQuestionsCache] = useState(new Map());
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
   const [selectedTechnology, setSelectedTechnology] = useState('all');
   const [selectedClient, setSelectedClient] = useState('all');
@@ -49,75 +51,48 @@ export default function QuestionsPage() {
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, isError, error, refetch } = useGetQuestionsQuery();
+  /* Debounce search input */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setCurrentPage(1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const allQuestions = useMemo(() => data?.data ?? [], [data]);
-
-  const filterOptions = useMemo(() => {
-    const options = {
-      technology: new Set(),
-      client: new Set(),
-      framework: new Set(),
-      cloudPlatform: new Set(),
+  /* Build backend query parameters */
+  const queryParams = useMemo(() => {
+    const params = {
+      page: currentPage,
+      size: ITEMS_PER_PAGE,
     };
 
-    allQuestions.forEach((q) => {
-      const technology = q.technology_name || q.technology || q.tech_stack || q.category;
-      const client = q.client_name || q.client;
-      const framework = q.framework && q.framework.toLowerCase() !== 'nan' ? q.framework : null;
-      const cloudPlatform = q.cloud_platform || q.cloud;
+    if (debouncedSearch) {
+      params.search = debouncedSearch;
+    }
+    if (selectedDifficulty !== 'all') {
+      params.difficulty = selectedDifficulty;
+    }
+    if (selectedTechnology !== 'all') {
+      const parsedId = Number(selectedTechnology);
+      if (Number.isInteger(parsedId)) {
+        params.technology_id = parsedId;
+      }
+    }
+    if (selectedClient !== 'all') {
+      params.client = selectedClient;
+    }
+    if (selectedFramework !== 'all') {
+      params.framework = selectedFramework;
+    }
+    if (selectedCloudPlatform !== 'all') {
+      params.cloud_platform = selectedCloudPlatform;
+    }
 
-      if (technology) options.technology.add(technology);
-      if (client) options.client.add(client);
-      if (framework) options.framework.add(framework);
-      if (cloudPlatform) options.cloudPlatform.add(cloudPlatform);
-    });
-
-    return Object.fromEntries(
-      Object.entries(options).map(([key, values]) => [key, Array.from(values).sort()]),
-    );
-  }, [allQuestions]);
-
-  const filtered = useMemo(() => {
-    return allQuestions.filter((q) => {
-      const text = (
-        (q.question || q.question_text || q.title || q.prompt || '') +
-        ' ' +
-        (q.answer || q.solution || q.explanation || '') +
-        ' ' +
-        (q.technology_name || q.technology || q.tech_stack || q.category || '') +
-        ' ' +
-        (q.client_name || q.client || '') +
-        ' ' +
-        (q.framework || '') +
-        ' ' +
-        (q.cloud_platform || q.cloud || '')
-      ).toLowerCase();
-
-      const matchesSearch = !search.trim() || text.includes(search.toLowerCase());
-
-      const diff = String(q.difficulty || q.level || '').toLowerCase();
-      const matchesDiff =
-        selectedDifficulty === 'all' || diff.includes(selectedDifficulty.toLowerCase());
-
-      const technology = (q.technology_name || q.technology || q.tech_stack || q.category || '').toLowerCase();
-      const client = (q.client_name || q.client || '').toLowerCase();
-      const framework = (q.framework || '').toLowerCase();
-      const cloudPlatform = (q.cloud_platform || q.cloud || '').toLowerCase();
-      const matchesTechnology =
-        selectedTechnology === 'all' || technology === selectedTechnology.toLowerCase();
-      const matchesClient = selectedClient === 'all' || client === selectedClient.toLowerCase();
-      const matchesFramework =
-        selectedFramework === 'all' || framework === selectedFramework.toLowerCase();
-      const matchesCloudPlatform =
-        selectedCloudPlatform === 'all' || cloudPlatform === selectedCloudPlatform.toLowerCase();
-
-      return matchesSearch && matchesDiff && matchesTechnology && matchesClient
-        && matchesFramework && matchesCloudPlatform;
-    });
+    return params;
   }, [
-    allQuestions,
-    search,
+    currentPage,
+    debouncedSearch,
     selectedDifficulty,
     selectedTechnology,
     selectedClient,
@@ -125,42 +100,81 @@ export default function QuestionsPage() {
     selectedCloudPlatform,
   ]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-  const paginatedQuestions = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
-  }, [filtered, currentPage]);
+  const { data, isLoading, isFetching, isError, error, refetch } = useGetQuestionsQuery(queryParams);
 
-  const assignableQuestions = useMemo(
-    () => allQuestions
-      .filter((question) => selectedQuestionIds.has(getQuestionId(question)))
-      .map((question) => ({
-        id: getQuestionId(question),
-        title: question.question || question.question_text || question.title || question.prompt || 'Untitled Question',
-      })),
-    [allQuestions, selectedQuestionIds],
-  );
-  const visibleQuestionIds = paginatedQuestions
-    .map(getQuestionId)
-    .filter((id) => id !== null);
-  const allVisibleSelected = visibleQuestionIds.length > 0
-    && visibleQuestionIds.every((id) => selectedQuestionIds.has(id));
+  const questions = useMemo(() => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data.data)) return data.data;
+    if (Array.isArray(data.items)) return data.items;
+    if (Array.isArray(data.questions)) return data.questions;
+    if (Array.isArray(data.results)) return data.results;
+    return [];
+  }, [data]);
 
-  const hasActiveFilters = Boolean(
-    search || selectedDifficulty !== 'all' || selectedTechnology !== 'all'
-      || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all'
-  );
+  const totalRecords = useMemo(() => {
+    if (typeof data?.total === 'number') return data.total;
+    if (typeof data?.total_records === 'number') return data.total_records;
+    if (typeof data?.total_count === 'number') return data.total_count;
+    if (typeof data?.count === 'number') return data.count;
+    return questions.length;
+  }, [data, questions.length]);
 
-  const toggleExpand = (id) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+  const totalPages = useMemo(() => {
+    if (typeof data?.total_pages === 'number') return data.total_pages;
+    if (typeof data?.pages === 'number') return data.pages;
+    return Math.max(1, Math.ceil(totalRecords / ITEMS_PER_PAGE));
+  }, [data, totalRecords]);
+
+  /* Dynamic filter options discovered from incoming questions */
+  const [filterOptions, setFilterOptions] = useState({
+    technology: [],
+    client: [],
+    framework: [],
+    cloudPlatform: [],
+  });
+
+  useEffect(() => {
+    if (!questions || questions.length === 0) return;
+
+    setFilterOptions((prev) => {
+      const techMap = new Map();
+      prev.technology.forEach((t) => techMap.set(String(t.id ?? t.name), t));
+
+      const clients = new Set(prev.client);
+      const frameworks = new Set(prev.framework);
+      const cloudPlatforms = new Set(prev.cloudPlatform);
+
+      questions.forEach((q) => {
+        const techName = q.technology_name || q.technology || q.tech_stack || q.category;
+        const techId = q.technology_id ?? q.tech_id;
+        if (techName) {
+          const key = String(techId ?? techName);
+          if (!techMap.has(key)) {
+            techMap.set(key, { id: techId, name: techName });
+          }
+        }
+        const client = q.client_name || q.client;
+        const framework = q.framework && String(q.framework).toLowerCase() !== 'nan' ? q.framework : null;
+        const cloudPlatform = q.cloud_platform || q.cloud;
+
+        if (client) clients.add(client);
+        if (framework) frameworks.add(framework);
+        if (cloudPlatform) cloudPlatforms.add(cloudPlatform);
+      });
+
+      return {
+        technology: Array.from(techMap.values()).sort((a, b) => a.name.localeCompare(b.name)),
+        client: Array.from(clients).sort(),
+        framework: Array.from(frameworks).sort(),
+        cloudPlatform: Array.from(cloudPlatforms).sort(),
+      };
     });
-  };
+  }, [questions]);
 
-  const toggleQuestionSelection = (id) => {
+  /* Multi-question selection across pages */
+  const toggleQuestionSelection = (question) => {
+    const id = getQuestionId(question);
     if (id === null) return;
     setSelectedQuestionIds((currentIds) => {
       const nextIds = new Set(currentIds);
@@ -168,14 +182,72 @@ export default function QuestionsPage() {
       else nextIds.add(id);
       return nextIds;
     });
+    setSelectedQuestionsCache((prev) => {
+      const next = new Map(prev);
+      const title = question.question || question.question_text || question.title || question.prompt || 'Untitled Question';
+      next.set(id, { id, title });
+      return next;
+    });
   };
+
+  const visibleQuestionIds = questions
+    .map(getQuestionId)
+    .filter((id) => id !== null);
+
+  const allVisibleSelected = visibleQuestionIds.length > 0
+    && visibleQuestionIds.every((id) => selectedQuestionIds.has(id));
 
   const toggleVisibleQuestions = () => {
     setSelectedQuestionIds((currentIds) => {
       const nextIds = new Set(currentIds);
-      if (allVisibleSelected) visibleQuestionIds.forEach((id) => nextIds.delete(id));
-      else visibleQuestionIds.forEach((id) => nextIds.add(id));
+      if (allVisibleSelected) {
+        visibleQuestionIds.forEach((id) => nextIds.delete(id));
+      } else {
+        visibleQuestionIds.forEach((id) => nextIds.add(id));
+      }
       return nextIds;
+    });
+    setSelectedQuestionsCache((prev) => {
+      const next = new Map(prev);
+      questions.forEach((q) => {
+        const id = getQuestionId(q);
+        if (id !== null) {
+          const title = q.question || q.question_text || q.title || q.prompt || 'Untitled Question';
+          next.set(id, { id, title });
+        }
+      });
+      return next;
+    });
+  };
+
+  const assignableQuestions = useMemo(() => {
+    return Array.from(selectedQuestionIds).map((id) => {
+      return selectedQuestionsCache.get(id) || { id, title: `Question #${id}` };
+    });
+  }, [selectedQuestionIds, selectedQuestionsCache]);
+
+  const hasActiveFilters = Boolean(
+    debouncedSearch || selectedDifficulty !== 'all' || selectedTechnology !== 'all'
+    || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all'
+  );
+
+  const handleClearFilters = () => {
+    setSearch('');
+    setDebouncedSearch('');
+    setSelectedDifficulty('all');
+    setSelectedTechnology('all');
+    setSelectedClient('all');
+    setSelectedFramework('all');
+    setSelectedCloudPlatform('all');
+    setCurrentPage(1);
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
   };
 
@@ -201,7 +273,10 @@ export default function QuestionsPage() {
                 <button
                   type="button"
                   className="qb-clear-selection"
-                  onClick={() => setSelectedQuestionIds(new Set())}
+                  onClick={() => {
+                    setSelectedQuestionIds(new Set());
+                    setSelectedQuestionsCache(new Map());
+                  }}
                 >
                   Clear selection
                 </button>
@@ -237,10 +312,7 @@ export default function QuestionsPage() {
               className="qb-search-input"
               placeholder="Search questions or keywords..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
@@ -271,8 +343,10 @@ export default function QuestionsPage() {
                 aria-label="Filter by technology"
               >
                 <option value="all">All Technologies</option>
-                {filterOptions.technology.map((technology) => (
-                  <option key={technology} value={technology}>{technology}</option>
+                {filterOptions.technology.map((tech) => (
+                  <option key={tech.id ?? tech.name} value={tech.id ?? tech.name}>
+                    {tech.name}
+                  </option>
                 ))}
               </select>
             )}
@@ -329,8 +403,19 @@ export default function QuestionsPage() {
             )}
 
             <span className="qb-count-badge">
-              {filtered.length} {filtered.length === 1 ? 'question' : 'questions'}
+              {totalRecords} {totalRecords === 1 ? 'question' : 'questions'}
             </span>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="qb-clear-selection"
+                onClick={handleClearFilters}
+                style={{ minHeight: '36px', padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         </div>
 
@@ -358,7 +443,7 @@ export default function QuestionsPage() {
               Retry Loading
             </button>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : questions.length === 0 ? (
           <div className="qb-state-card qb-state-card--empty">
             <h2>{hasActiveFilters ? 'No matching questions found' : 'No questions in the bank yet'}</h2>
             <p>
@@ -366,9 +451,19 @@ export default function QuestionsPage() {
                 ? 'Try adjusting your search keywords or clear filters to see more results.'
                 : 'Questions added to the bank will appear here.'}
             </p>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="qb-btn-upload"
+                onClick={handleClearFilters}
+                style={{ marginTop: '12px' }}
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         ) : (
-          <div className="qb-card">
+          <div className="qb-card" style={{ opacity: isFetching ? 0.75 : 1, transition: 'opacity 0.15s ease' }}>
             <div className="qb-table-wrap">
               <table className="qb-table">
                 <thead>
@@ -399,7 +494,7 @@ export default function QuestionsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedQuestions.map((q, idx) => {
+                  {questions.map((q, idx) => {
                     const rowId = q.question_id || q.id || q._id || `q-${idx}`;
                     const questionText = q.question || q.question_text || q.title || q.prompt || 'Untitled Question';
                     const answerText = q.answer || q.solution || q.explanation || null;
@@ -422,7 +517,7 @@ export default function QuestionsPage() {
                             <input
                               type="checkbox"
                               checked={isSelected}
-                              onChange={() => toggleQuestionSelection(questionId)}
+                              onChange={() => toggleQuestionSelection(q)}
                               aria-label={`Select question ${displayIndex}`}
                               disabled={questionId === null}
                             />
@@ -500,14 +595,14 @@ export default function QuestionsPage() {
               <div className="qb-pagination">
                 <span>
                   Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
-                  {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
+                  {Math.min(currentPage * ITEMS_PER_PAGE, totalRecords)} of {totalRecords}
                 </span>
                 <div className="qb-pagination-buttons">
                   <button
                     type="button"
                     className="qb-page-btn"
                     onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
-                    disabled={currentPage <= 1}
+                    disabled={currentPage <= 1 || isFetching}
                   >
                     Previous
                   </button>
@@ -518,7 +613,7 @@ export default function QuestionsPage() {
                     type="button"
                     className="qb-page-btn"
                     onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))}
-                    disabled={currentPage >= totalPages}
+                    disabled={currentPage >= totalPages || isFetching}
                   >
                     Next
                   </button>
@@ -537,7 +632,10 @@ export default function QuestionsPage() {
           <QuestionAssignmentModal
             questions={assignableQuestions}
             onClose={() => setIsAssignOpen(false)}
-            onAssigned={() => setSelectedQuestionIds(new Set())}
+            onAssigned={() => {
+              setSelectedQuestionIds(new Set());
+              setSelectedQuestionsCache(new Map());
+            }}
           />
         )}
       </div>
