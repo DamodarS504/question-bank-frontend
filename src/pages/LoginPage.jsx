@@ -237,7 +237,7 @@ export default function LoginPage() {
               <line x1="19" y1="8" x2="19" y2="14" />
               <line x1="22" y1="11" x2="16" y2="11" />
             </svg>
-            Create an Account
+            Create Admin Account
           </Link>
 
           <p className="auth-footer-note" style={{ marginTop: '16px' }}>

@@ -27,20 +27,27 @@ export const questionBankApi = authApi.injectEndpoints({
       ],
     }),
     submitEmployeeAnswer: builder.mutation({
-      query: ({ question_id, answer, answer_rating }) => ({
+      query: ({ question_id, answer, answer_rating = 5 }) => ({
         url: '/api/v1/question/answer',
         method: 'POST',
-        body: { question_id, answer, answer_rating },
+        body: {
+          question_id,
+          answer,
+          answer_rating: Number(answer_rating) || 5,
+        },
       }),
       invalidatesTags: (result, error, { question_id }) => [
         { type: 'EmployeeAnswers', id: question_id },
       ],
     }),
     updateEmployeeAnswer: builder.mutation({
-      query: ({ answer_id, answer, answer_rating }) => ({
+      query: ({ answer_id, answer, answer_rating = 5 }) => ({
         url: `/api/v1/question/answer/${answer_id}`,
         method: 'PUT',
-        body: { answer, answer_rating },
+        body: {
+          answer,
+          answer_rating: Number(answer_rating) || 5,
+        },
       }),
       invalidatesTags: (result, error, { question_id }) => [
         { type: 'EmployeeAnswers', id: question_id },
