@@ -153,16 +153,18 @@ export default function QuestionAssignmentModal({ questions, onClose, onAssigned
         </div>
 
         {isSuccess ? (
-          <div className="qba-body">
-            <div className="qba-success" role="status">
-              {questions.length} {questions.length === 1 ? 'question was' : 'questions were'} assigned to {selectedEmployeeList.length} {selectedEmployeeList.length === 1 ? 'employee' : 'employees'}.
+          <div className="qba-success-wrap">
+            <div className="qba-body">
+              <div className="qba-success" role="status">
+                {questions.length} {questions.length === 1 ? 'question was' : 'questions were'} assigned to {selectedEmployeeList.length} {selectedEmployeeList.length === 1 ? 'employee' : 'employees'}.
+              </div>
             </div>
             <div className="qba-footer">
               <button type="button" className="qba-submit" onClick={() => { onAssigned(); onClose(); }}>Done</button>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form className="qba-form" onSubmit={handleSubmit}>
             <div className="qba-body">
               {formError && <div className="qba-error" role="alert">{formError}</div>}
 
@@ -270,9 +272,39 @@ export default function QuestionAssignmentModal({ questions, onClose, onAssigned
             </div>
 
             <div className="qba-footer">
-              <button type="button" className="qba-secondary" onClick={onClose} disabled={isAssigning}>Cancel</button>
-              <button type="submit" className="qba-submit" disabled={isAssigning || isLoading || isFetching || isError || selectedEmployeeList.length === 0}>
-                {isAssigning ? 'Assigning...' : 'Assign to employees'}
+              <button
+                type="button"
+                className="qba-secondary"
+                onClick={onClose}
+                disabled={isAssigning}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="qba-submit"
+                disabled={isAssigning || isLoading || isFetching || isError || selectedEmployeeList.length === 0}
+              >
+                {isAssigning ? (
+                  <>
+                    <svg className="qba-btn-spinner" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="12" />
+                    </svg>
+                    <span>Assigning...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <line x1="19" y1="8" x2="19" y2="14" />
+                      <line x1="22" y1="11" x2="16" y2="11" />
+                    </svg>
+                    <span>
+                      Assign to employees{selectedEmployeeList.length > 0 ? ` (${selectedEmployeeList.length})` : ''}
+                    </span>
+                  </>
+                )}
               </button>
             </div>
           </form>

@@ -17,18 +17,10 @@ function getQuestionCount(data) {
 }
 
 const summaryCards = [
-  { key: 'questions', icon: '📋', label: 'Assigned Questions', helper: 'Available in bank', tone: 'purple' },
-  { key: 'prepared',  icon: '✓',  label: 'Prepared',           helper: 'Marked as mastered',   tone: 'green' },
-  { key: 'progress',  icon: '⌛',  label: 'In Progress',        helper: 'Active practice track', tone: 'amber' },
-  { key: 'saved',     icon: '🔖', label: 'Bookmarked',         helper: 'Saved for quick review', tone: 'teal' },
-  { key: 'readiness', icon: '📈', label: 'Readiness Score',    helper: 'Client interview ready', tone: 'mint' },
-];
-
-const recentActivity = [
-  { initials: 'PY', title: 'Python Track',     action: 'Completed Python Core section',        time: 'Just now' },
-  { initials: 'SQL', title: 'Database Track',  action: 'Practiced Indexing & Query Tuning',    time: '15m ago' },
-  { initials: 'SYS', title: 'Architecture',    action: 'Reviewed Microservices Design Patterns', time: '1h ago' },
-  { initials: 'REA', title: 'Frontend Track',  action: 'Bookmarked React Hooks Deep-Dive',     time: '2h ago' },
+  { key: 'total-questions', icon: '📋', label: 'Total Questions', helper: 'Available in bank', tone: 'purple' },
+  { key: 'assigned-questions', icon: '✓', label: 'Assigned Questions', helper: 'Assigend to employees', tone: 'green' },
+  { key: 'total-employees', icon: '⌛', label: 'Total Employees', helper: 'Active employees', tone: 'amber' },
+  { key: 'saved', icon: '🔖', label: 'Bookmarked', helper: 'Saved for quick review', tone: 'teal' },
 ];
 
 export default function DashboardPage() {
@@ -55,35 +47,7 @@ export default function DashboardPage() {
             );
           })}
 
-          {isAdmin ? (
-            <>
-              <article className="dashboard-stat-card dashboard-stat-card--teal dashboard-stat-card--dashed">
-                <span className="dashboard-stat-card__icon" aria-hidden="true">📂</span>
-                <div>
-                  <span className="dashboard-stat-card__value">
-                    <Link to="/questions" className="dashboard-card-link">
-                      Go to Bank &rarr;
-                    </Link>
-                  </span>
-                  <h2>Question Bank</h2>
-                  <p>Upload files &amp; explore</p>
-                </div>
-              </article>
-
-              <article className="dashboard-stat-card dashboard-stat-card--mint dashboard-stat-card--dashed">
-                <span className="dashboard-stat-card__icon" aria-hidden="true">👥</span>
-                <div>
-                  <span className="dashboard-stat-card__value">
-                    <Link to="/employees" className="dashboard-card-link">
-                      Employees &rarr;
-                    </Link>
-                  </span>
-                  <h2>Employees</h2>
-                  <p>Upload &amp; manage directory</p>
-                </div>
-              </article>
-            </>
-          ) : (
+          {!isAdmin && (
             <article className="dashboard-stat-card dashboard-stat-card--teal dashboard-stat-card--dashed">
               <span className="dashboard-stat-card__icon" aria-hidden="true">📋</span>
               <div>
@@ -110,21 +74,6 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="dashboard-panel dashboard-activity" aria-labelledby="activity-title">
-            <h2 id="activity-title">Recent Activity</h2>
-            <div className="activity-list">
-              {recentActivity.map((item) => (
-                <div className="activity-item" key={`${item.initials}-${item.time}`}>
-                  <span className="activity-item__avatar">{item.initials}</span>
-                  <div className="activity-item__body">
-                    <strong>{item.title}</strong>
-                    <span>{item.action}</span>
-                  </div>
-                  <time>{item.time}</time>
-                </div>
-              ))}
-            </div>
-          </section>
         </aside> : <aside className="dashboard-side-column">
           <section className="dashboard-panel dashboard-activity" aria-labelledby="assignments-title">
             <h2 id="assignments-title">Your preparation</h2>
