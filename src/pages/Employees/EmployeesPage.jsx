@@ -61,7 +61,7 @@ export default function EmployeesPage() {
     };
   }, [page, size, debouncedSearch, competency, baseLocation, isActive]);
 
-  const { data, isLoading, isError, error, isFetching } = useGetEmployeesQuery(queryArgs);
+  const { data, isLoading, isError, error, isFetching, refetch } = useGetEmployeesQuery(queryArgs);
 
   const employees = useMemo(() => data?.data ?? [], [data]);
   const totalRecords = data?.total_records ?? employees.length;
@@ -249,9 +249,13 @@ export default function EmployeesPage() {
               <button
                 type="button"
                 className="emp-btn-create"
-                onClick={() => setPage(1)}
+                onClick={() => {
+                  if (page !== 1) setPage(1);
+                  refetch();
+                }}
+                disabled={isFetching}
               >
-                Try Again
+                {isFetching ? 'Retrying...' : 'Try Again'}
               </button>
             </div>
           </div>

@@ -439,8 +439,16 @@ export default function QuestionsPage() {
             </div>
             <h2>Failed to load questions</h2>
             <p>{getApiErrorMessage(error)}</p>
-            <button type="button" className="qb-btn-upload" onClick={refetch}>
-              Retry Loading
+            <button
+              type="button"
+              className="qb-btn-upload"
+              onClick={() => {
+                if (currentPage !== 1) setCurrentPage(1);
+                refetch();
+              }}
+              disabled={isFetching}
+            >
+              {isFetching ? 'Retrying...' : 'Try Again'}
             </button>
           </div>
         ) : questions.length === 0 ? (

@@ -226,7 +226,9 @@ export default function QuestionAssignmentModal({ questions, onClose, onAssigned
               ) : isError ? (
                 <div className="qba-state" role="alert">
                   <p>{getApiErrorMessage(error)}</p>
-                  <button type="button" className="qba-secondary" onClick={refetch}>Retry</button>
+                  <button type="button" className="qba-secondary" onClick={refetch} disabled={isFetching}>
+                    {isFetching ? 'Retrying...' : 'Retry'}
+                  </button>
                 </div>
               ) : employees.length === 0 ? (
                 <p className="qba-state">
