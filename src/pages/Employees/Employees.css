@@ -172,25 +172,6 @@
   font-family: monospace;
 }
 
-.emp-badge-competency {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 99px;
-  background: #ecfdf5;
-  color: #047857;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.emp-badge-location {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 99px;
-  background: #f0f9ff;
-  color: #0284c7;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
 
 .emp-state-empty {
   display: flex;
@@ -503,23 +484,47 @@
 
 /* Status & Role Badges */
 .emp-badge-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 78px;
+  min-width: 78px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+}
+
+.emp-badge-status::before {
+  content: "";
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 0.76rem;
-  font-weight: 700;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.9;
+  flex-shrink: 0;
 }
 
 .emp-badge-status--active {
   background: #ecfdf5;
   color: #047857;
-  border: 1px solid #a7f3d0;
+  border-color: #a7f3d0;
 }
 
 .emp-badge-status--inactive {
-  background: #fef2f2;
+  background: #fff1f2;
   color: #be123c;
-  border: 1px solid #fecdd3;
+  border-color: #fecdd3;
 }
 
 .emp-badge-role {

@@ -5,7 +5,15 @@ import { getApiErrorMessage } from '../../features/auth/authApi';
 import EmployeeAnswerEditor from './EmployeeAnswerEditor';
 import QuestionAssignmentModal from './QuestionAssignmentModal';
 import UploadModal from './UploadModal';
+import CustomSelect from '../../components/ui/CustomSelect';
 import './Questions.css';
+
+const DIFFICULTY_OPTIONS = [
+  { value: 'all', label: 'All Difficulties' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+];
 
 const ITEMS_PER_PAGE = 10;
 
@@ -231,6 +239,41 @@ export default function QuestionsPage() {
     || selectedClient !== 'all' || selectedFramework !== 'all' || selectedCloudPlatform !== 'all'
   );
 
+  const techOptions = useMemo(
+    () => [
+      { value: 'all', label: 'All Technologies' },
+      ...filterOptions.technology.map((tech) => ({
+        value: tech.id ?? tech.name,
+        label: tech.name,
+      })),
+    ],
+    [filterOptions.technology]
+  );
+
+  const clientOptions = useMemo(
+    () => [
+      { value: 'all', label: 'All Clients' },
+      ...filterOptions.client.map((c) => ({ value: c, label: c })),
+    ],
+    [filterOptions.client]
+  );
+
+  const frameworkOptions = useMemo(
+    () => [
+      { value: 'all', label: 'All Frameworks' },
+      ...filterOptions.framework.map((f) => ({ value: f, label: f })),
+    ],
+    [filterOptions.framework]
+  );
+
+  const cloudOptions = useMemo(
+    () => [
+      { value: 'all', label: 'All Cloud Platforms' },
+      ...filterOptions.cloudPlatform.map((cp) => ({ value: cp, label: cp })),
+    ],
+    [filterOptions.cloudPlatform]
+  );
+
   const handleClearFilters = () => {
     setSearch('');
     setDebouncedSearch('');
@@ -317,89 +360,67 @@ export default function QuestionsPage() {
           </div>
 
           <div className="qb-filters">
-            <select
-              className="qb-select"
+            <CustomSelect
+              options={DIFFICULTY_OPTIONS}
               value={selectedDifficulty}
-              onChange={(e) => {
-                setSelectedDifficulty(e.target.value);
+              onChange={(val) => {
+                setSelectedDifficulty(val);
                 setCurrentPage(1);
               }}
-              aria-label="Filter by difficulty"
-            >
-              <option value="all">All Difficulties</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
+              placeholder="All Difficulties"
+              ariaLabel="Filter by difficulty"
+            />
 
             {filterOptions.technology.length > 0 && (
-              <select
-                className="qb-select"
+              <CustomSelect
+                options={techOptions}
                 value={selectedTechnology}
-                onChange={(e) => {
-                  setSelectedTechnology(e.target.value);
+                onChange={(val) => {
+                  setSelectedTechnology(val);
                   setCurrentPage(1);
                 }}
-                aria-label="Filter by technology"
-              >
-                <option value="all">All Technologies</option>
-                {filterOptions.technology.map((tech) => (
-                  <option key={tech.id ?? tech.name} value={tech.id ?? tech.name}>
-                    {tech.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="All Technologies"
+                ariaLabel="Filter by technology"
+              />
             )}
 
             {filterOptions.client.length > 0 && (
-              <select
-                className="qb-select"
+              <CustomSelect
+                options={clientOptions}
                 value={selectedClient}
-                onChange={(e) => {
-                  setSelectedClient(e.target.value);
+                onChange={(val) => {
+                  setSelectedClient(val);
                   setCurrentPage(1);
                 }}
-                aria-label="Filter by client"
-              >
-                <option value="all">All Clients</option>
-                {filterOptions.client.map((client) => (
-                  <option key={client} value={client}>{client}</option>
-                ))}
-              </select>
+                placeholder="All Clients"
+                ariaLabel="Filter by client"
+              />
             )}
 
             {filterOptions.framework.length > 0 && (
-              <select
-                className="qb-select"
+              <CustomSelect
+                options={frameworkOptions}
                 value={selectedFramework}
-                onChange={(e) => {
-                  setSelectedFramework(e.target.value);
+                onChange={(val) => {
+                  setSelectedFramework(val);
                   setCurrentPage(1);
                 }}
-                aria-label="Filter by framework"
-              >
-                <option value="all">All Frameworks</option>
-                {filterOptions.framework.map((framework) => (
-                  <option key={framework} value={framework}>{framework}</option>
-                ))}
-              </select>
+                placeholder="All Frameworks"
+                ariaLabel="Filter by framework"
+              />
             )}
 
             {filterOptions.cloudPlatform.length > 0 && (
-              <select
-                className="qb-select"
+              <CustomSelect
+                options={cloudOptions}
                 value={selectedCloudPlatform}
-                onChange={(e) => {
-                  setSelectedCloudPlatform(e.target.value);
+                onChange={(val) => {
+                  setSelectedCloudPlatform(val);
                   setCurrentPage(1);
                 }}
-                aria-label="Filter by cloud platform"
-              >
-                <option value="all">All Cloud Platforms</option>
-                {filterOptions.cloudPlatform.map((cloudPlatform) => (
-                  <option key={cloudPlatform} value={cloudPlatform}>{cloudPlatform}</option>
-                ))}
-              </select>
+                placeholder="All Cloud Platforms"
+                ariaLabel="Filter by cloud platform"
+              />
             )}
 
             <span className="qb-count-badge">

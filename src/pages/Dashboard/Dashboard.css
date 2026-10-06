@@ -1,5 +1,25 @@
 .dashboard-shell { min-height: 100vh; display: flex; background: #f4fdfb; color: var(--text-primary); }
-.dashboard-sidebar { width: 248px; flex-shrink: 0; display: flex; flex-direction: column; padding: 28px 18px 20px; background: #083c38; color: white; }
+.dashboard-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  align-self: flex-start;
+  width: 248px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 18px 20px;
+  background: #083c38;
+  color: white;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  z-index: 20;
+}
+.dashboard-sidebar::-webkit-scrollbar {
+  display: none;
+}
 .dashboard-brand { display: flex; align-items: center; gap: 10px; padding: 0 12px; color: white; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; text-decoration: none; }
 .dashboard-brand > span:last-child > span { color: #8ee3c2; }
 .dashboard-brand__mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #20b486; color: white; }

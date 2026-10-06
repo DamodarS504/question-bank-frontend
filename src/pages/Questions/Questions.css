@@ -367,33 +367,58 @@
 .qb-diff-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 76px;
+  min-width: 76px;
   height: 24px;
-  padding: 0 0.65rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 0 8px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-transform: capitalize;
   white-space: nowrap;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+}
+
+.qb-diff-badge::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.9;
+  flex-shrink: 0;
 }
 
 .qb-diff-badge--easy {
-  background: #dcfce7;
-  color: #15803d;
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
 }
 
 .qb-diff-badge--medium {
-  background: #fef3c7;
+  background: #fffbeb;
   color: #b45309;
+  border-color: #fde68a;
 }
 
 .qb-diff-badge--hard {
-  background: #ffe4e6;
+  background: #fff1f2;
   color: #be123c;
+  border-color: #fecdd3;
 }
 
 .qb-diff-badge--default {
-  background: #f1f5f9;
-  color: #64748b;
+  background: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
 }
 
 .qb-assignment-list { padding: 0 22px; }

@@ -7,7 +7,35 @@ import {
 import { getApiErrorMessage } from '../../features/auth/authApi';
 import UploadEmployeeModal from './UploadEmployeeModal';
 import CreateEmployeeModal from './CreateEmployeeModal';
+import CustomSelect from '../../components/ui/CustomSelect';
 import './Employees.css';
+
+const COMPETENCY_OPTIONS = [
+  { value: '', label: 'All Competencies' },
+  { value: 'Python', label: 'Python' },
+  { value: 'Java', label: 'Java' },
+  { value: 'JavaScript', label: 'JavaScript' },
+  { value: 'React', label: 'React' },
+  { value: 'DevOps', label: 'DevOps' },
+  { value: 'QA', label: 'QA' },
+  { value: 'Data', label: 'Data' },
+];
+
+const LOCATION_OPTIONS = [
+  { value: '', label: 'All Locations' },
+  { value: 'Indore', label: 'Indore' },
+  { value: 'Bangalore', label: 'Bangalore' },
+  { value: 'Pune', label: 'Pune' },
+  { value: 'Hyderabad', label: 'Hyderabad' },
+  { value: 'Mumbai', label: 'Mumbai' },
+  { value: 'Remote', label: 'Remote' },
+];
+
+const STATUS_OPTIONS = [
+  { value: '', label: 'All Statuses' },
+  { value: 'true', label: 'Active' },
+  { value: 'false', label: 'Inactive' },
+];
 
 function TrashIcon() {
   return (
@@ -172,58 +200,40 @@ export default function EmployeesPage() {
 
           <div className="emp-filters-group">
             {/* Competency Filter */}
-            <select
-              className="emp-select"
+            <CustomSelect
+              options={COMPETENCY_OPTIONS}
               value={competency}
-              onChange={(e) => {
-                setCompetency(e.target.value);
+              onChange={(val) => {
+                setCompetency(val);
                 setPage(1);
               }}
-              aria-label="Filter by competency"
-            >
-              <option value="">All Competencies</option>
-              <option value="Python">Python</option>
-              <option value="Java">Java</option>
-              <option value="JavaScript">JavaScript</option>
-              <option value="React">React</option>
-              <option value="DevOps">DevOps</option>
-              <option value="QA">QA</option>
-              <option value="Data">Data</option>
-            </select>
+              placeholder="All Competencies"
+              ariaLabel="Filter by competency"
+            />
 
             {/* Base Location Filter */}
-            <select
-              className="emp-select"
+            <CustomSelect
+              options={LOCATION_OPTIONS}
               value={baseLocation}
-              onChange={(e) => {
-                setBaseLocation(e.target.value);
+              onChange={(val) => {
+                setBaseLocation(val);
                 setPage(1);
               }}
-              aria-label="Filter by location"
-            >
-              <option value="">All Locations</option>
-              <option value="Indore">Indore</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Pune">Pune</option>
-              <option value="Hyderabad">Hyderabad</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Remote">Remote</option>
-            </select>
+              placeholder="All Locations"
+              ariaLabel="Filter by location"
+            />
 
             {/* Status Filter */}
-            <select
-              className="emp-select"
+            <CustomSelect
+              options={STATUS_OPTIONS}
               value={isActive}
-              onChange={(e) => {
-                setIsActive(e.target.value);
+              onChange={(val) => {
+                setIsActive(val);
                 setPage(1);
               }}
-              aria-label="Filter by status"
-            >
-              <option value="">All Statuses</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
+              placeholder="All Statuses"
+              ariaLabel="Filter by status"
+            />
 
             {hasActiveFilters && (
               <button
@@ -301,12 +311,8 @@ export default function EmployeesPage() {
                         <span className="emp-badge-role">{emp.role || 'Employee'}</span>
                       </td>
                       <td>{emp.gender || '—'}</td>
-                      <td>
-                        <span className="emp-badge-location">{emp.base_location || '—'}</span>
-                      </td>
-                      <td>
-                        <span className="emp-badge-competency">{emp.competency || '—'}</span>
-                      </td>
+                      <td>{emp.base_location || '—'}</td>
+                      <td>{emp.competency || '—'}</td>
                       <td>
                         <span
                           className={`emp-badge-status ${

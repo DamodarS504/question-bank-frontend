@@ -1,0 +1,171 @@
+/* ============================================================
+   CustomSelect Dropdown Styles
+   Modern SaaS dropdown popover adhering to premium UI standards
+   ============================================================ */
+
+.custom-select-container {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-body);
+}
+
+.custom-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 145px;
+  height: 38px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: var(--text-primary);
+  border: 1.5px solid rgba(13, 148, 136, 0.22);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 550;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.custom-select-trigger:hover {
+  border-color: rgba(13, 148, 136, 0.5);
+  background: #fafefe;
+}
+
+.custom-select-trigger:focus-visible,
+.custom-select-trigger.is-open {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14);
+}
+
+/* When a non-default filter is actively selected */
+.custom-select-trigger.has-value {
+  border-color: rgba(13, 148, 136, 0.5);
+  background: #f0fdfa;
+  color: #0f766e;
+  font-weight: 650;
+}
+
+.custom-select-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.custom-select-chevron {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.custom-select-trigger:hover .custom-select-chevron,
+.custom-select-trigger.is-open .custom-select-chevron {
+  color: var(--teal);
+}
+
+.custom-select-trigger.is-open .custom-select-chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu Popover */
+.custom-select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 280px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px -4px rgba(13, 63, 55, 0.14),
+              0 4px 10px -2px rgba(13, 63, 55, 0.06),
+              0 0 0 1px rgba(13, 148, 136, 0.05);
+  z-index: 100;
+  animation: selectMenuIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(13, 148, 136, 0.25) transparent;
+  box-sizing: border-box;
+}
+
+.custom-select-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-select-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-select-menu::-webkit-scrollbar-thumb {
+  background: rgba(13, 148, 136, 0.25);
+  border-radius: 99px;
+}
+
+@keyframes selectMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Option List Items */
+.custom-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  box-sizing: border-box;
+}
+
+.custom-select-option:hover,
+.custom-select-option.is-highlighted {
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+.custom-select-option.is-selected {
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 650;
+}
+
+.custom-select-check {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: #0d9488;
+}
