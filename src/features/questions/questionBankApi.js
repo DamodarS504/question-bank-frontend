@@ -96,6 +96,24 @@ export const questionBankApi = authApi.injectEndpoints({
       }),
       invalidatesTags: ['Assignments'],
     }),
+    updateQuestion: builder.mutation({
+      query: ({ question_id, id, ...body }) => ({
+        url: `/api/v1/question-bank/update-question/${question_id ?? id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['Questions'],
+    }),
+    deleteQuestion: builder.mutation({
+      query: (arg) => {
+        const questionId = typeof arg === 'object' && arg !== null ? (arg.question_id ?? arg.id) : arg;
+        return {
+          url: `/api/v1/question-bank/delete-question/${questionId}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['Questions'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -110,4 +128,6 @@ export const {
   useDeleteEmployeeAnswerMutation,
   useUploadQuestionsMutation,
   useAssignQuestionsMutation,
+  useUpdateQuestionMutation,
+  useDeleteQuestionMutation,
 } = questionBankApi;

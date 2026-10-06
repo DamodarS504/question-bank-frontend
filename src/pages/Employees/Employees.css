@@ -413,37 +413,44 @@
   }
 }
 
-/* Actions Column & Delete Button */
+/* Actions Column & Deactivate/Delete Button */
 .emp-actions-cell {
   text-align: right;
   white-space: nowrap;
 }
 
-.emp-btn-delete {
+.emp-btn-delete,
+.emp-btn-action-deactivate {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid #fecdd3;
-  background: #fff1f2;
-  color: #be123c;
+  border: 1px solid #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-
-.emp-btn-delete:hover:not(:disabled) {
-  background: #ffe4e6;
-  border-color: #f43f5e;
-  color: #9f1239;
+.emp-btn-delete:hover:not(:disabled),
+.emp-btn-action-deactivate:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #f97316;
+  color: #9a3412;
   transform: translateY(-1px);
 }
 
-.emp-btn-delete:disabled {
-  opacity: 0.5;
+.emp-btn-delete:disabled,
+.emp-btn-action-deactivate:disabled,
+.emp-btn-action-deactivate--disabled {
+  opacity: 0.45;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
   cursor: not-allowed;
+  transform: none;
 }
 
 .emp-btn-danger {
@@ -468,8 +475,16 @@
   cursor: not-allowed;
 }
 
+.emp-btn-deactivate {
+  background: #ea580c;
+}
+
+.emp-btn-deactivate:hover:not(:disabled) {
+  background: #c2410c;
+}
+
 .emp-delete-modal {
-  max-width: 460px;
+  max-width: 480px;
 }
 
 .emp-delete-modal-icon {
@@ -478,8 +493,47 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: #fff1f2;
-  color: #e11d48;
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+/* Inactive row subtle styling */
+.emp-row--inactive {
+  background: #fafbfc;
+}
+
+.emp-row--inactive td {
+  color: #64748b;
+}
+
+.emp-row--inactive .emp-badge-id {
+  opacity: 0.75;
+}
+
+/* Deactivation Notice Card in Modal */
+.emp-deactivate-notice {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+}
+
+.emp-deactivate-notice-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #b45309;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.emp-deactivate-notice p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #92400e;
+  line-height: 1.45;
 }
 
 /* Status & Role Badges */
@@ -652,4 +706,20 @@
   background: #ecfdf5;
   color: #047857;
   border: 1px solid #a7f3d0;
+}
+
+/* Search Keyword Highlighting */
+mark.emp-search-highlight,
+.emp-search-highlight {
+  background-color: #fef08a;
+  color: inherit;
+  font-weight: inherit;
+  font-style: inherit;
+  padding: 0;
+  margin: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 2px;
+  line-height: inherit;
+  display: inline;
 }
