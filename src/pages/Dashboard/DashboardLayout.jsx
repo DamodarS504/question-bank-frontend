@@ -38,7 +38,15 @@ function UsersIcon() {
   );
 }
 
-export default function DashboardLayout({ children, title, eyebrow, allowedRoles }) {
+function BookmarkNavIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+export default function DashboardLayout({ children, title, eyebrow, subtitle, allowedRoles, headerActions }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [logoutApi] = useLogoutApiMutation();
@@ -109,6 +117,10 @@ export default function DashboardLayout({ children, title, eyebrow, allowedRoles
               Assigned Questions
             </NavLink>
           )}
+          <NavLink to="/bookmarks" className={({ isActive }) => `dashboard-nav__link${isActive ? ' is-active' : ''}`}>
+            <BookmarkNavIcon />
+            Bookmarks
+          </NavLink>
         </nav>
 
         <div className="dashboard-sidebar__bottom">
@@ -122,35 +134,39 @@ export default function DashboardLayout({ children, title, eyebrow, allowedRoles
       <main className="dashboard-main">
         <header className="dashboard-header">
           <div>
-            <p className="dashboard-eyebrow">{eyebrow}</p>
+            {eyebrow && <p className="dashboard-eyebrow">{eyebrow}</p>}
             <h1>{title}</h1>
+            {subtitle && <p className="dashboard-subtitle">{subtitle}</p>}
           </div>
-          <div className="dashboard-profile-menu">
-            <button
-              type="button"
-              className="dashboard-avatar"
-              aria-label="Open profile menu"
-              aria-expanded={isProfileMenuOpen}
-              onClick={() => setIsProfileMenuOpen((isOpen) => !isOpen)}
-            >
-              {profile?.first_name ? (
-                <span style={{ fontWeight: 700, fontSize: '1rem' }}>{profile.first_name.charAt(0).toUpperCase()}</span>
-              ) : (
-                <UserIcon />
-              )}
-            </button>
-            {isProfileMenuOpen && (
-              <div className="dashboard-profile-dropdown">
-                <NavLink to="/profile" onClick={() => setIsProfileMenuOpen(false)}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {headerActions}
+            <div className="dashboard-profile-menu">
+              <button
+                type="button"
+                className="dashboard-avatar"
+                aria-label="Open profile menu"
+                aria-expanded={isProfileMenuOpen}
+                onClick={() => setIsProfileMenuOpen((isOpen) => !isOpen)}
+              >
+                {profile?.first_name ? (
+                  <span style={{ fontWeight: 700, fontSize: '1rem' }}>{profile.first_name.charAt(0).toUpperCase()}</span>
+                ) : (
                   <UserIcon />
-                  Profile
-                </NavLink>
-                <button type="button" onClick={handleLogout}>
-                  <LogoutIcon />
-                  Sign out
-                </button>
-              </div>
-            )}
+                )}
+              </button>
+              {isProfileMenuOpen && (
+                <div className="dashboard-profile-dropdown">
+                  <NavLink to="/profile" onClick={() => setIsProfileMenuOpen(false)}>
+                    <UserIcon />
+                    Profile
+                  </NavLink>
+                  <button type="button" onClick={handleLogout}>
+                    <LogoutIcon />
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
         {children}

@@ -12,6 +12,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import QuestionsPage from './pages/Questions/QuestionsPage';
 import EmployeesPage from './pages/Employees/EmployeesPage';
 import AssignedQuestionsPage from './pages/AssignedQuestions/AssignedQuestionsPage';
+import BookmarksPage from './pages/Bookmarks/BookmarksPage';
 import { ForgotPasswordPage, ResetPasswordPage } from './pages/PasswordRecoveryPages';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/questions" element={<QuestionsPage />} />
       <Route path="/employees" element={<EmployeesPage />} />
       <Route path="/assigned-questions" element={<AssignedQuestionsPage />} />
+      <Route path="/bookmarks" element={<BookmarksPage />} />
     </Routes>
   );
 }

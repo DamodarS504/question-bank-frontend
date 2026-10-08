@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { useGetQuestionsQuery } from '../../features/questions/questionBankApi';
 import { getApiErrorMessage } from '../../features/auth/authApi';
+import { useBookmarks } from '../../utils/bookmarkStorage';
 import EmployeeAnswerEditor from './EmployeeAnswerEditor';
 import QuestionAssignmentModal from './QuestionAssignmentModal';
 import UploadModal from './UploadModal';
@@ -18,6 +19,14 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 const ITEMS_PER_PAGE = 10;
+
+function BookmarkIcon({ filled }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
 
 function EditIcon() {
   return (
@@ -112,6 +121,7 @@ export default function QuestionsPage() {
   const [selectedCloudPlatform, setSelectedCloudPlatform] = useState('all');
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const { isBookmarked, toggleBookmark } = useBookmarks();
 
   const showSuccessBanner = (msg) => {
     setSuccessBanner(msg);
@@ -372,52 +382,54 @@ export default function QuestionsPage() {
     });
   };
 
+  const questionsHeaderActions = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+      {selectedQuestionIds.size > 0 && (
+        <>
+          <button
+            type="button"
+            className="qb-btn-assign"
+            onClick={() => setIsAssignOpen(true)}
+          >
+            Assign {selectedQuestionIds.size} {selectedQuestionIds.size === 1 ? 'question' : 'questions'}
+          </button>
+          <button
+            type="button"
+            className="qb-clear-selection"
+            onClick={() => {
+              setSelectedQuestionIds(new Set());
+              setSelectedQuestionsCache(new Map());
+            }}
+          >
+            Clear selection
+          </button>
+        </>
+      )}
+      <button
+        type="button"
+        className="qb-btn-upload"
+        onClick={() => setIsUploadOpen(true)}
+        id="upload-questions-btn"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        Upload Questions
+      </button>
+    </div>
+  );
+
   return (
-    <DashboardLayout title="Question Bank" eyebrow="Administration" allowedRoles={['ADMIN']}>
+    <DashboardLayout
+      title="Question Bank"
+      eyebrow="Administration"
+      subtitle="View, search, and manage interview questions across all tech stacks"
+      allowedRoles={['ADMIN']}
+      headerActions={questionsHeaderActions}
+    >
       <div className="qb-container">
-        {/* Top Header */}
-        <div className="qb-header">
-          <div className="qb-header__info">
-            <h1>All Questions</h1>
-            <p>View, search, and manage interview questions across all tech stacks</p>
-          </div>
-          <div className="qb-header__actions">
-            {selectedQuestionIds.size > 0 && (
-              <>
-                <button
-                  type="button"
-                  className="qb-btn-assign"
-                  onClick={() => setIsAssignOpen(true)}
-                >
-                  Assign {selectedQuestionIds.size} {selectedQuestionIds.size === 1 ? 'question' : 'questions'}
-                </button>
-                <button
-                  type="button"
-                  className="qb-clear-selection"
-                  onClick={() => {
-                    setSelectedQuestionIds(new Set());
-                    setSelectedQuestionsCache(new Map());
-                  }}
-                >
-                  Clear selection
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              className="qb-btn-upload"
-              onClick={() => setIsUploadOpen(true)}
-              id="upload-questions-btn"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              Upload Questions
-            </button>
-          </div>
-        </div>
 
         {/* Success Alert Banner */}
         {successBanner && (
@@ -612,7 +624,7 @@ export default function QuestionsPage() {
                     <th>Difficulty</th>
                     <th>Rating</th>
                     <th>Created</th>
-                    <th style={{ textAlign: 'right' }}>Action</th>
+                    <th className="qb-col-action">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -695,17 +707,20 @@ export default function QuestionsPage() {
                         </td>
                         <td className="qb-rating">★ {rating}</td>
                         <td className="qb-created-date">{formatCreatedAt(q.created_at || q.createdAt)}</td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td className="qb-col-action">
                           <div className="qb-actions-group">
-                            {answerText && (
-                              <button
-                                type="button"
-                                className="qb-answer-toggle"
-                                onClick={() => toggleExpand(rowId)}
-                              >
-                                {isExpanded ? 'Collapse' : 'Details'}
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              className={`qb-action-btn qb-action-btn--bookmark ${isBookmarked(q) ? 'is-bookmarked' : ''}`}
+                              onClick={() => {
+                                const added = toggleBookmark(q);
+                                showSuccessBanner(added ? 'Question added to bookmarks' : 'Question removed from bookmarks');
+                              }}
+                              title={isBookmarked(q) ? 'Remove bookmark' : 'Bookmark for review'}
+                              aria-label={isBookmarked(q) ? 'Remove bookmark' : 'Bookmark for review'}
+                            >
+                              <BookmarkIcon filled={isBookmarked(q)} />
+                            </button>
                             <button
                               type="button"
                               className="qb-action-btn qb-action-btn--edit"
