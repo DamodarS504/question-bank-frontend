@@ -6,7 +6,9 @@ import {
   useLazyGetEmployeeAnswerQuery,
   useSubmitEmployeeAnswerMutation,
   useUpdateEmployeeAnswerMutation,
+  useCreateRatingMutation
 } from '../../features/questions/questionBankApi';
+import { toast } from "react-toastify";
 
 function getAnswerRecords(response) {
   return Array.isArray(response) ? response : [];
@@ -115,41 +117,34 @@ function getAnswerAuthorName(savedAnswer, isOwner) {
 }
 
 /* 5-Star Rating Component */
-function StarRating({ rating }) {
-  const numericRating = Math.max(0, Math.min(5, Number(rating) || 0));
-  const fullStars = Math.floor(numericRating);
-  const hasHalfStar = numericRating - fullStars >= 0.5;
+
+const StarRating = ({ rating = 0, onRate }) => {
+  const [selectedRating, setSelectedRating] = useState(rating);
+
+  const handleClick = (star) => {
+    setSelectedRating(star);
+    onRate?.(star);
+  };
 
   return (
-    <div className="qba-stars-badge" title={`Rating: ${numericRating} / 5`}>
-      <div className="qba-stars-row" aria-hidden="true">
-        {[1, 2, 3, 4, 5].map((star) => {
-          const isFilled = star <= fullStars;
-          const isHalf = !isFilled && star === fullStars + 1 && hasHalfStar;
-          return (
-            <svg
-              key={star}
-              className={`qba-star-svg ${isFilled ? 'qba-star--filled' : isHalf ? 'qba-star--half' : 'qba-star--empty'}`}
-              viewBox="0 0 24 24"
-              width="12"
-              height="12"
-              fill={isFilled || isHalf ? '#f59e0b' : 'none'}
-              stroke={isFilled || isHalf ? '#f59e0b' : '#cbd5e1'}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-          );
-        })}
-      </div>
-      <span className="qba-stars-number">
-        {numericRating > 0 ? numericRating.toFixed(numericRating % 1 === 0 ? 0 : 1) : '0'}
-      </span>
+    <div className="star-rating">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span
+          key={star}
+          onClick={() => handleClick(star)}
+          style={{
+            cursor: "pointer",
+            color: star <= selectedRating ? "#ffc107" : "#d3d3d3",
+            fontSize: "20px",
+          }}
+        >
+          ★
+        </span>
+      ))}
     </div>
   );
-}
+};
+
 
 function renderInlineMarkdown(str) {
   const elements = [];
@@ -470,7 +465,7 @@ function RichAnswerEditor({
       </div>
 
       <div className="qba-editor-footer">
-        <div className="qba-editor-footer-left">
+        {/* <div className="qba-editor-footer-left">
           {onRatingChange && (
             <InteractiveRatingSelector
               rating={rating}
@@ -481,7 +476,7 @@ function RichAnswerEditor({
           <span className="qba-editor-count">
             {wordCount} {wordCount === 1 ? 'word' : 'words'} · {charCount} chars
           </span>
-        </div>
+        </div> */}
         <div className="qba-editor-actions">
           {onCancel && (
             <button
@@ -528,6 +523,17 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
   const [updateAnswer, { isLoading: isUpdatingAnswer }] = useUpdateEmployeeAnswerMutation();
   const [deleteAnswer, { isLoading: isDeletingAnswer }] = useDeleteEmployeeAnswerMutation();
   const isMutatingAnswer = isSavingAnswer || isUpdatingAnswer || isDeletingAnswer;
+
+
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage("");
+    }, 2000);
+
+  return () => clearTimeout(timer);
+}, [successMessage]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -654,6 +660,24 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
     }
   };
 
+
+  const [createRating] = useCreateRatingMutation();
+
+ const handleRateAnswer = async (answerId, rating) => {
+  try {
+    await createRating({
+      answer_id: answerId,
+      rating,
+    }).unwrap();
+
+    setSuccessMessage("Rated Successfully");
+  } catch (error) {
+    console.error(error);
+    toast.error(
+      error?.data?.detail || "Failed to submit rating"
+    );
+  }
+};
   return (
     <div className="qba-answer-editor">
       <button
@@ -836,10 +860,16 @@ export default function EmployeeAnswerEditor({ questionId, questionTitle }) {
                         <div className="qba-card-text">
                           <FormattedAnswer text={savedAnswer.answer} />
                         </div>
-
-                        <div className="qba-card-footer">
-                          <StarRating rating={savedAnswer.answer_rating ?? savedAnswer.rating ?? 0} />
-                        </div>
+                        {!isOwner && (
+                          <div className="qba-card-footer">
+                            <StarRating
+                              rating={savedAnswer.avg_rating ?? 0}
+                              onRate={(rating) =>
+                                handleRateAnswer(answerId, rating)
+                              }
+                            />
+                          </div>
+                        )}
                       </article>
                     );
                   })}

@@ -114,9 +114,22 @@ export const questionBankApi = authApi.injectEndpoints({
       },
       invalidatesTags: ['Questions'],
     }),
+ 
+  createRating: builder.mutation({
+    query: (body) => ({
+      url: "/api/v1/question/rating",
+      method: "POST",
+      body,
+    }),
+    invalidatesTags: ["Answers"],
   }),
+
+ }),
   overrideExisting: false,
 });
+
+
+
 
 export const {
   useGetQuestionsQuery,
@@ -130,4 +143,5 @@ export const {
   useAssignQuestionsMutation,
   useUpdateQuestionMutation,
   useDeleteQuestionMutation,
+  useCreateRatingMutation,
 } = questionBankApi;
