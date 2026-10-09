@@ -446,12 +446,48 @@
 }
 
 /* ============================================================
-   MAIN 2-COLUMN ANALYTICS GRID (MATCHING REFERENCE)
+   MAIN 2x2 ANALYTICS QUAD GRID (EQUAL WIDTH & HEIGHT)
    ============================================================ */
+.dash-charts-quad-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.dash-charts-quad-grid > .dash-clean-card {
+  height: 100%;
+  min-height: 345px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-charts-quad-grid > .dash-clean-card .dash-doughnut-layout {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto;
+  width: 100%;
+}
+
+.dash-charts-quad-grid > .dash-clean-card .dash-chartjs-wrapper {
+  flex: 1;
+  min-height: 175px;
+}
+
+.dash-charts-quad-grid > .dash-clean-card .dash-competency-footer,
+.dash-charts-quad-grid > .dash-clean-card .dash-progress-footer-strip {
+  margin-top: auto;
+}
+
 .dash-grid-layout {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 20px;
+}
+
+.dash-grid-layout--equal {
+  grid-template-columns: 1fr 1fr;
 }
 
 .dash-col-primary,
@@ -676,15 +712,21 @@
 .dash-doughnut-layout {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin: 10px 0 14px;
+  justify-content: center;
+  gap: 32px;
+  margin: 10px auto;
+  width: 100%;
+  max-width: 440px;
 }
 
 .dash-doughnut-box {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: 155px;
+  height: 155px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dash-canvas-holder {
@@ -705,7 +747,7 @@
 }
 
 .dash-center-number {
-  font: 800 1.8rem / 1 var(--font-heading);
+  font: 800 1.7rem / 1 var(--font-heading);
   color: #0f172a;
 }
 .dash-center-label {
@@ -730,18 +772,25 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
+  width: 195px;
+  flex-shrink: 0;
 }
 
 .dash-status-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 7px 12px;
+  border-radius: 8px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
 }
+.dash-status-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
 .dash-status-item__left {
   display: flex;
   align-items: center;
@@ -749,8 +798,9 @@
 }
 .dash-status-item__left strong {
   display: block;
-  font-size: 0.84rem;
-  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: #1e293b;
 }
 .dash-status-item__left p {
   margin: 0;
@@ -764,25 +814,34 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-.dash-status-dot--active {
+.dash-status-dot--active,
+.dash-status-dot--completed {
   background: #10b981;
 }
 .dash-status-dot--inactive {
   background: #f59e0b;
 }
+.dash-status-dot--inprogress {
+  background: #6366f1;
+}
+.dash-status-dot--notstarted {
+  background: #94a3b8;
+}
 
 .dash-status-item__right {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   text-align: right;
 }
 .dash-status-number {
-  display: block;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #0f172a;
   line-height: 1;
 }
 .dash-status-pct {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 .dash-status-pct--emerald {
@@ -790,6 +849,29 @@
 }
 .dash-status-pct--amber {
   color: #d97706;
+}
+.dash-status-pct--indigo {
+  color: #4f46e5;
+}
+.dash-status-pct--slate {
+  color: #64748b;
+}
+.dash-status-pct--rose {
+  color: #e11d48;
+}
+
+.dash-progress-footer-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+.dash-progress-footer-strip strong {
+  color: #0f172a;
 }
 
 .dash-competency-footer {
@@ -1102,27 +1184,72 @@
 }
 
 /* ============================================================
-   DIFFICULTY DISTRIBUTION CARD & CHART
+   DIFFICULTY & OVERALL ASSESSMENT PROGRESS SPLIT
    ============================================================ */
 .dash-diff-card {
   overflow: hidden;
 }
 
-.dash-diff-body {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  margin: 14px 0 4px;
+.dash-count-badge--indigo {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #c7d2fe;
 }
 
-.dash-diff-chart-col {
-  flex-shrink: 0;
+.dash-split-analytics {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 36px;
+  align-items: center;
+  margin: 12px 0 6px;
+}
+
+/* Panel Header styling */
+.dash-panel-subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.dash-panel-title {
+  margin: 0;
+  font: 750 0.96rem / 1.2 var(--font-heading);
+  color: #0f172a;
+}
+.dash-panel-desc {
+  margin: 2px 0 0;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+.dash-panel-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Left Side: Difficulty Graph */
+.dash-diff-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.dash-diff-side .dash-panel-subhead {
+  width: 100%;
 }
 
 .dash-diff-doughnut-box {
   position: relative;
-  width: 175px;
-  height: 175px;
+  width: 100%;
+  max-width: 220px;
+  min-height: 200px;
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dash-diff-center-info {
@@ -1135,13 +1262,11 @@
   pointer-events: none;
   text-align: center;
 }
-
 .dash-diff-center-num {
   font: 800 1.85rem / 1 var(--font-heading);
   letter-spacing: -0.02em;
   color: #0f172a;
 }
-
 .dash-diff-center-text {
   font-size: 0.72rem;
   font-weight: 700;
@@ -1151,176 +1276,217 @@
   margin-top: 3px;
 }
 
-.dash-diff-center-sub {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #94a3b8;
-}
-
-.dash-diff-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  flex: 1;
-  min-width: 0;
-}
-
-.dash-diff-tier-card {
+/* Compact Chips under Difficulty Graph */
+.dash-diff-legend-chips {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 18px;
-  border-radius: 14px;
-  background: #ffffff;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.dash-diff-legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  font-size: 0.78rem;
+  transition: all 0.15s ease;
 }
-
-.dash-diff-tier-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+.dash-diff-legend-chip:hover {
+  background: #f1f5f9;
 }
-
-.dash-diff-tier-card--easy {
-  border-top: 3px solid #10b981;
-}
-
-.dash-diff-tier-card--med {
-  border-top: 3px solid #f59e0b;
-}
-
-.dash-diff-tier-card--hard {
-  border-top: 3px solid #f43f5e;
-}
-
-.dash-diff-tier-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dash-diff-tier-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.dash-diff-tier-dot {
-  width: 9px;
-  height: 9px;
+.dash-diff-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-
-.dash-diff-tier-dot--easy {
+.dash-diff-dot--easy {
   background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
 }
-
-.dash-diff-tier-dot--med {
+.dash-diff-dot--med {
   background: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
-
-.dash-diff-tier-dot--hard {
+.dash-diff-dot--hard {
   background: #f43f5e;
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18);
 }
-
-.dash-diff-tier-name {
-  font-weight: 750;
-  font-size: 0.92rem;
+.dash-diff-chip-name {
+  color: #475569;
+  font-weight: 600;
+}
+.dash-diff-chip-val {
   color: #0f172a;
+  font-weight: 800;
+}
+.dash-diff-chip-pct {
+  color: #94a3b8;
+  font-size: 0.72rem;
 }
 
-.dash-diff-tier-badge {
-  font-size: 0.74rem;
+/* Right Side: Overall Progress */
+.dash-progress-side {
+  border-left: 1px solid #f1f5f9;
+  padding-left: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dash-overall-rate-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 0.78rem;
   font-weight: 750;
-  padding: 2px 8px;
-  border-radius: 6px;
+  letter-spacing: 0.01em;
 }
 
-.dash-diff-tier-badge--easy {
+/* Multi-Segment Track */
+.dash-multi-progress-track {
+  display: flex;
+  height: 7px;
+  width: 100%;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: #f1f5f9;
+  margin: 10px 0 16px;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+  gap: 2px;
+}
+.dash-multi-seg {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dash-multi-seg--completed {
+  background: #10b981;
+}
+.dash-multi-seg--inprogress {
+  background: #6366f1;
+}
+.dash-multi-seg--notstarted {
+  background: #cbd5e1;
+}
+
+/* Executive Metric Tiles Grid */
+.dash-pro-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.dash-pro-tile {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+}
+.dash-pro-tile:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.dash-pro-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.dash-pro-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dash-pro-dot--completed {
+  background: #10b981;
+}
+.dash-pro-dot--inprogress {
+  background: #6366f1;
+}
+.dash-pro-dot--notstarted {
+  background: #94a3b8;
+}
+
+.dash-pro-tile-label {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #475569;
+  flex: 1;
+}
+.dash-pro-tile-pct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.dash-pro-tile-pct--completed {
   background: #ecfdf5;
   color: #047857;
 }
-
-.dash-diff-tier-badge--med {
-  background: #fffbeb;
-  color: #b45309;
+.dash-pro-tile-pct--inprogress {
+  background: #eef2ff;
+  color: #4338ca;
+}
+.dash-pro-tile-pct--notstarted {
+  background: #f1f5f9;
+  color: #64748b;
 }
 
-.dash-diff-tier-badge--hard {
-  background: #fff1f2;
-  color: #be123c;
-}
-
-.dash-diff-tier-main {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.dash-diff-tier-number {
+.dash-pro-tile-value {
   font: 800 1.65rem / 1 var(--font-heading);
   color: #0f172a;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  margin: 3px 0 6px;
 }
 
-.dash-diff-tier-ratio {
-  font-size: 0.76rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.dash-diff-bar-track {
-  height: 6px;
+.dash-pro-tile-track {
+  height: 3px;
   width: 100%;
   border-radius: 9999px;
   background: #f1f5f9;
   overflow: hidden;
 }
-
-.dash-diff-bar-fill {
+.dash-pro-tile-fill {
   height: 100%;
   border-radius: 9999px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.4s ease;
+}
+.dash-pro-tile-fill--completed {
+  background: #10b981;
+}
+.dash-pro-tile-fill--inprogress {
+  background: #6366f1;
+}
+.dash-pro-tile-fill--notstarted {
+  background: #94a3b8;
 }
 
-.dash-diff-bar-fill--easy {
-  background: linear-gradient(90deg, #34d399, #10b981);
-}
-
-.dash-diff-bar-fill--med {
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
-}
-
-.dash-diff-bar-fill--hard {
-  background: linear-gradient(90deg, #fb7185, #f43f5e);
-}
-
-.dash-diff-tier-footer {
-  margin-top: auto;
-}
-
-.dash-diff-tier-desc {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-
-
-@media (max-width: 900px) {
-  .dash-diff-body {
-    flex-direction: column;
-    align-items: center;
+@media (max-width: 960px) {
+  .dash-split-analytics {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
-  .dash-diff-cards-grid {
-    width: 100%;
+  .dash-progress-side {
+    border-left: none;
+    border-top: 1px solid #f1f5f9;
+    padding-left: 0;
+    padding-top: 24px;
+  }
+  .dash-pro-tiles-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1332,6 +1498,7 @@
   .dash-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .dash-charts-quad-grid,
   .dash-grid-layout {
     grid-template-columns: 1fr;
   }

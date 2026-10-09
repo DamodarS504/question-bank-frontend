@@ -1,12 +1,12 @@
 /**
  * src/pages/Dashboard/DashboardPage.jsx
- * Clean, minimal Admin Dashboard with Chart.js visualization.
+ * Clean, minimal Admin Dashboard integrated with the /api/v1/dashboard/admin-summary endpoint.
  */
 import { useMemo, useCallback } from 'react';
 import DashboardLayout from './DashboardLayout';
 import { getUserRole } from '../../features/auth/authSlice';
 import { useGetProfileQuery } from '../../features/auth/authApi';
-import { useGetQuestionsQuery, useGetAssignmentsQuery } from '../../features/questions/questionBankApi';
+import { useGetAdminSummaryQuery } from '../../features/dashboard/dashboardApi';
 import { useGetEmployeesQuery } from '../../features/employees/employeesApi';
 import { useBookmarks } from '../../utils/bookmarkStorage';
 
@@ -14,9 +14,10 @@ import DashboardSummaryCards from './components/DashboardSummaryCards';
 import TechDistributionChart from './components/TechDistributionChart';
 import EmployeeStatusChart from './components/EmployeeStatusChart';
 import DifficultyBreakdown from './components/DifficultyBreakdown';
+import OverallProgressChart from './components/OverallProgressChart';
 import './Dashboard.css';
 
-// Baseline demo distribution if questions database has 0 records
+// Baseline demo distribution if database has 0 records
 const DEFAULT_TECH_DISTRIBUTION = [
   { technology: 'Python', total: 32, assigned: 20 },
   { technology: 'React', total: 26, assigned: 18 },
@@ -32,14 +33,15 @@ export default function DashboardPage() {
   const { data: profile } = useGetProfileQuery();
   const isAdmin = getUserRole(profile) === 'ADMIN';
 
-  // Live API Queries
+  // Live Admin Summary Query (GET /api/v1/dashboard/admin-summary)
   const {
-    data: questionsData,
-    isLoading: isLoadingQuestions,
-    isFetching: isFetchingQuestions,
-    refetch: refetchQuestions,
-  } = useGetQuestionsQuery({ page: 1, size: 250 }, { skip: !isAdmin });
+    data: adminSummaryData,
+    isLoading: isLoadingSummary,
+    isFetching: isFetchingSummary,
+    refetch: refetchSummary,
+  } = useGetAdminSummaryQuery(undefined, { skip: !isAdmin });
 
+  // Optional: Employees query for competency distribution pills
   const {
     data: employeesData,
     isLoading: isLoadingEmployees,
@@ -47,228 +49,102 @@ export default function DashboardPage() {
     refetch: refetchEmployees,
   } = useGetEmployeesQuery({ page: 1, size: 250 }, { skip: !isAdmin });
 
-  const {
-    data: assignmentsData,
-    isLoading: isLoadingAssignments,
-    isFetching: isFetchingAssignments,
-    refetch: refetchAssignments,
-  } = useGetAssignmentsQuery(undefined, { skip: !isAdmin });
-
   const { bookmarkCount } = useBookmarks();
 
-  const isRefreshing = isFetchingQuestions || isFetchingEmployees || isFetchingAssignments;
+  const isRefreshing = isFetchingSummary || isFetchingEmployees;
 
   const handleRefreshAll = useCallback(() => {
-    refetchQuestions();
+    refetchSummary();
     refetchEmployees();
-    refetchAssignments();
-  }, [refetchQuestions, refetchEmployees, refetchAssignments]);
+  }, [refetchSummary, refetchEmployees]);
 
   /* ----------------------------------------------------
-     Normalize Questions
+     Normalize Admin Summary Data
      ---------------------------------------------------- */
-  const rawQuestions = useMemo(() => {
-    if (!questionsData) return [];
-    if (Array.isArray(questionsData)) return questionsData;
-    if (Array.isArray(questionsData.data)) return questionsData.data;
-    if (Array.isArray(questionsData.items)) return questionsData.items;
-    if (Array.isArray(questionsData.questions)) return questionsData.questions;
-    if (Array.isArray(questionsData.results)) return questionsData.results;
-    return [];
-  }, [questionsData]);
+  const summary = useMemo(() => {
+    if (!adminSummaryData) return null;
+    return adminSummaryData.data || adminSummaryData;
+  }, [adminSummaryData]);
 
-  const totalQuestionsCount = useMemo(() => {
-    if (typeof questionsData?.total === 'number') return questionsData.total;
-    if (typeof questionsData?.total_records === 'number') return questionsData.total_records;
-    if (typeof questionsData?.total_count === 'number') return questionsData.total_count;
-    if (typeof questionsData?.count === 'number') return questionsData.count;
-    return rawQuestions.length;
-  }, [questionsData, rawQuestions.length]);
+  // KPI Metrics
+  const totalQuestionsCount = summary?.total_questions ?? 0;
+  const totalAssignmentsCount = summary?.total_assignments ?? 0;
+  const totalEmployeesCount = summary?.total_employees ?? 0;
+  const activeEmployeesCount = summary?.active_employees ?? summary?.employee_status?.active?.count ?? 0;
+  const inactiveEmployeesCount = summary?.inactive_employees ?? summary?.employee_status?.inactive?.count ?? 0;
+  const bookmarkedCount = (summary?.bookmarked_questions != null && summary.bookmarked_questions > 0)
+    ? summary.bookmarked_questions
+    : bookmarkCount;
+
+  // Assessment Progress Metrics
+  const completedQuestions = summary?.completed_questions ?? 0;
+  const inProgressQuestions = summary?.in_progress_questions ?? 0;
+  const notStartedQuestions = summary?.not_started_questions ?? 0;
+  const overallProgress = summary?.overall_progress ?? 0;
 
   /* ----------------------------------------------------
-     Normalize Assignments
+     Employee Competencies
      ---------------------------------------------------- */
-  const rawAssignments = useMemo(() => {
-    if (!assignmentsData) return [];
-    if (Array.isArray(assignmentsData.assignments)) return assignmentsData.assignments;
-    if (Array.isArray(assignmentsData.data?.assignments)) return assignmentsData.data.assignments;
-    if (Array.isArray(assignmentsData.data)) return assignmentsData.data;
-    if (Array.isArray(assignmentsData)) return assignmentsData;
-    return [];
-  }, [assignmentsData]);
-
-  const totalAssignmentsCount = useMemo(() => {
-    if (typeof assignmentsData?.count === 'number') return assignmentsData.count;
-    if (typeof assignmentsData?.total === 'number') return assignmentsData.total;
-    return rawAssignments.length;
-  }, [assignmentsData, rawAssignments.length]);
-
-  /* ----------------------------------------------------
-     Normalize Employees
-     ---------------------------------------------------- */
-  const rawEmployees = useMemo(() => {
+  const employeeCompetencies = useMemo(() => {
     if (!employeesData) return [];
-    if (Array.isArray(employeesData.data)) return employeesData.data;
-    if (Array.isArray(employeesData)) return employeesData;
-    return [];
-  }, [employeesData]);
+    const rawList = Array.isArray(employeesData)
+      ? employeesData
+      : Array.isArray(employeesData.data)
+      ? employeesData.data
+      : Array.isArray(employeesData.employees)
+      ? employeesData.employees
+      : [];
 
-  const totalEmployeesCount = useMemo(() => {
-    if (typeof employeesData?.total_records === 'number') return employeesData.total_records;
-    if (typeof employeesData?.total === 'number') return employeesData.total;
-    return rawEmployees.length;
-  }, [employeesData, rawEmployees.length]);
-
-  const { activeEmployeesCount, inactiveEmployeesCount, employeeCompetencies } = useMemo(() => {
-    if (rawEmployees.length === 0) {
-      return {
-        activeEmployeesCount: 0,
-        inactiveEmployeesCount: 0,
-        employeeCompetencies: [],
-      };
-    }
-
-    let active = 0;
-    let inactive = 0;
     const compMap = new Map();
-
-    rawEmployees.forEach((emp) => {
-      if (emp.is_active === false) {
-        inactive += 1;
-      } else {
-        active += 1;
-      }
-
+    rawList.forEach((emp) => {
       const comp = emp.competency || emp.department || emp.role;
       if (comp) {
         compMap.set(comp, (compMap.get(comp) || 0) + 1);
       }
     });
 
-    const compList = Array.from(compMap.entries())
+    return Array.from(compMap.entries())
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
-
-    return {
-      activeEmployeesCount: active,
-      inactiveEmployeesCount: inactive,
-      employeeCompetencies: compList,
-    };
-  }, [rawEmployees]);
+  }, [employeesData]);
 
   /* ----------------------------------------------------
-     Fast ID -> Question Lookup Map
-     ---------------------------------------------------- */
-  const questionMap = useMemo(() => {
-    const map = new Map();
-    rawQuestions.forEach((q) => {
-      const id = q.question_id ?? q.id ?? q._id;
-      if (id != null) {
-        map.set(Number(id), q);
-        map.set(String(id), q);
-      }
-    });
-    return map;
-  }, [rawQuestions]);
-
-  /* ----------------------------------------------------
-     Technology-Wise Bar Chart Data Aggregation
+     Questions by Technology Distribution
      ---------------------------------------------------- */
   const techDistributionData = useMemo(() => {
-    if (rawQuestions.length > 0) {
-      const techTotals = new Map();
-      const techAssigned = new Map();
-
-      // Count total questions in bank by technology
-      rawQuestions.forEach((q) => {
-        const tech = q.technology_name || q.technology || q.tech_stack || q.category || 'General';
-        techTotals.set(tech, (techTotals.get(tech) || 0) + 1);
-      });
-
-      // Count assigned questions by matching question IDs
-      rawAssignments.forEach((assign) => {
-        const qIds = [];
-        if (Array.isArray(assign.question_ids)) {
-          qIds.push(...assign.question_ids);
-        } else if (assign.question_id != null) {
-          qIds.push(assign.question_id);
-        } else if (assign.questionId != null) {
-          qIds.push(assign.questionId);
-        }
-
-        if (Array.isArray(assign.questions)) {
-          assign.questions.forEach((q) => {
-            const id = q.question_id ?? q.id;
-            if (id != null) qIds.push(id);
-          });
-        }
-
-        if (qIds.length > 0) {
-          qIds.forEach((id) => {
-            const resolvedQ = questionMap.get(id) || questionMap.get(Number(id)) || questionMap.get(String(id)) || {};
-            const tech = resolvedQ.technology_name || resolvedQ.technology || resolvedQ.tech_stack || resolvedQ.category;
-            if (tech) {
-              techAssigned.set(tech, (techAssigned.get(tech) || 0) + 1);
-            } else {
-              const firstTech = Array.from(techTotals.keys())[0] || 'General';
-              techAssigned.set(firstTech, (techAssigned.get(firstTech) || 0) + 1);
-            }
-          });
-        } else {
-          const resolvedQ = assign.questions || assign.question || {};
-          const tech =
-            resolvedQ.technology_name ||
-            resolvedQ.technology ||
-            resolvedQ.tech_stack ||
-            resolvedQ.category ||
-            assign.technology ||
-            assign.technology_name;
-
-          if (tech) {
-            techAssigned.set(tech, (techAssigned.get(tech) || 0) + 1);
-          } else {
-            const firstTech = Array.from(techTotals.keys())[0] || 'General';
-            techAssigned.set(firstTech, (techAssigned.get(firstTech) || 0) + 1);
-          }
-        }
-      });
-
-      return Array.from(techTotals.entries()).map(([tech, total]) => {
-        const assigned = techAssigned.get(tech) || 0;
-        return {
-          technology: tech,
-          total,
-          assigned,
-        };
-      }).sort((a, b) => b.total - a.total);
+    if (summary?.questions_by_technology && Array.isArray(summary.questions_by_technology)) {
+      return summary.questions_by_technology.map((item) => ({
+        technology: item.technology,
+        total: item.total_questions ?? item.total ?? 0,
+        assigned: item.assigned_questions ?? item.assigned ?? 0,
+      }));
     }
-
     return DEFAULT_TECH_DISTRIBUTION;
-  }, [rawQuestions, rawAssignments, questionMap]);
+  }, [summary]);
 
   /* ----------------------------------------------------
-     Difficulty Breakdown Aggregation
+     Difficulty Breakdown
      ---------------------------------------------------- */
   const { easyCount, mediumCount, hardCount } = useMemo(() => {
-    if (rawQuestions.length > 0) {
+    if (summary?.difficulty_distribution && Array.isArray(summary.difficulty_distribution)) {
       let easy = 0;
       let med = 0;
       let hard = 0;
 
-      rawQuestions.forEach((q) => {
-        const diff = String(q.difficulty || q.difficulty_level || q.level || '').toLowerCase();
-        if (diff.includes('easy')) easy += 1;
-        else if (diff.includes('hard')) hard += 1;
-        else med += 1;
+      summary.difficulty_distribution.forEach((item) => {
+        const diff = String(item.difficulty || '').toLowerCase();
+        const cnt = Number(item.count) || 0;
+        if (diff.includes('easy')) easy = cnt;
+        else if (diff.includes('hard')) hard = cnt;
+        else if (diff.includes('med')) med = cnt;
       });
 
       return { easyCount: easy, mediumCount: med, hardCount: hard };
     }
+    return { easyCount: 0, mediumCount: 0, hardCount: 0 };
+  }, [summary]);
 
-    return { easyCount: 2, mediumCount: 3, hardCount: 1 };
-  }, [rawQuestions]);
-
-  // Only the Sync button in the header (no question or employee buttons, no duplicate keywords)
+  // Sync button in the header
   const syncHeaderAction = (
     <button
       type="button"
@@ -308,34 +184,40 @@ export default function DashboardPage() {
           assignedQuestions={totalAssignmentsCount}
           totalEmployees={totalEmployeesCount}
           activeEmployees={activeEmployeesCount}
-          bookmarkedCount={bookmarkCount}
-          isLoading={isLoadingQuestions || isLoadingEmployees}
+          bookmarkedCount={bookmarkedCount}
+          isLoading={isLoadingSummary}
         />
 
-        {/* Clean Charts Grid */}
-        <div className="dash-grid-layout">
-          {/* Questions by Technology Bar Chart */}
+        {/* Unified 2x2 Grid: Equal Width & Height for all 4 Analytics Cards */}
+        <div className="dash-charts-quad-grid">
           <TechDistributionChart
             techData={techDistributionData}
-            isLoading={isLoadingQuestions || isLoadingAssignments}
+            isLoading={isLoadingSummary}
           />
 
-          {/* Employee Status Doughnut Chart */}
           <EmployeeStatusChart
             activeCount={activeEmployeesCount}
             inactiveCount={inactiveEmployeesCount}
             competencies={employeeCompetencies}
-            isLoading={isLoadingEmployees}
+            isLoading={isLoadingSummary || isLoadingEmployees}
+          />
+
+          <DifficultyBreakdown
+            easyCount={easyCount}
+            mediumCount={mediumCount}
+            hardCount={hardCount}
+            isLoading={isLoadingSummary}
+          />
+
+          <OverallProgressChart
+            completedQuestions={completedQuestions}
+            inProgressQuestions={inProgressQuestions}
+            notStartedQuestions={notStartedQuestions}
+            overallProgress={overallProgress}
+            totalAssignments={totalAssignmentsCount}
+            isLoading={isLoadingSummary}
           />
         </div>
-
-        {/* Question Difficulty Distribution */}
-        <DifficultyBreakdown
-          easyCount={easyCount}
-          mediumCount={mediumCount}
-          hardCount={hardCount}
-          isLoading={isLoadingQuestions}
-        />
       </div>
     </DashboardLayout>
   );

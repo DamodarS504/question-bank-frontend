@@ -1,10 +1,10 @@
 /**
  * src/pages/Dashboard/components/DifficultyBreakdown.jsx
- * Executive, interactive Chart.js Doughnut diagram and tier cards for Easy, Medium, and Hard questions.
+ * Independent card displaying Difficulty Distribution as a Doughnut Chart.
+ * Uses local Chart.js bundle with canvas gradients, center stats, and clean difficulty tier list.
  */
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { loadChartJs } from '../../../utils/chartLoader';
+import { useEffect, useRef } from 'react';
+import Chart from 'chart.js/auto';
 
 export default function DifficultyBreakdown({
   easyCount = 0,
@@ -14,7 +14,6 @@ export default function DifficultyBreakdown({
 }) {
   const canvasRef = useRef(null);
   const chartInstanceRef = useRef(null);
-  const [chartReady, setChartReady] = useState(false);
 
   const total = easyCount + mediumCount + hardCount;
   const easyPct = total > 0 ? Math.round((easyCount / total) * 100) : 0;
@@ -22,30 +21,13 @@ export default function DifficultyBreakdown({
   const hardPct = total > 0 ? Math.max(0, 100 - easyPct - medPct) : 0;
 
   useEffect(() => {
-    let mounted = true;
-    loadChartJs()
-      .then(() => {
-        if (mounted) setChartReady(true);
-      })
-      .catch((err) => {
-        console.error('Failed to load Chart.js for difficulty chart:', err);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!chartReady || !canvasRef.current || total === 0 || isLoading) return;
+    if (!canvasRef.current || total === 0 || isLoading) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const ChartClass = window.Chart;
-    if (!ChartClass) return;
-
-    const existingChart = ChartClass.getChart(canvas);
+    const existingChart = Chart.getChart(canvas);
     if (existingChart) {
       existingChart.destroy();
     }
@@ -53,15 +35,29 @@ export default function DifficultyBreakdown({
       chartInstanceRef.current.destroy();
       chartInstanceRef.current = null;
     }
-    chartInstanceRef.current = new ChartClass(ctx, {
+
+    // Gradient arcs for Easy, Medium, Hard
+    const easyGrad = ctx.createLinearGradient(0, 0, 160, 160);
+    easyGrad.addColorStop(0, '#34d399');
+    easyGrad.addColorStop(1, '#059669');
+
+    const medGrad = ctx.createLinearGradient(0, 0, 160, 160);
+    medGrad.addColorStop(0, '#fbbf24');
+    medGrad.addColorStop(1, '#d97706');
+
+    const hardGrad = ctx.createLinearGradient(0, 0, 160, 160);
+    hardGrad.addColorStop(0, '#fb7185');
+    hardGrad.addColorStop(1, '#e11d48');
+
+    chartInstanceRef.current = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: ['Easy', 'Medium', 'Hard'],
         datasets: [
           {
             data: [easyCount, mediumCount, hardCount],
-            backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
-            hoverBackgroundColor: ['#059669', '#d97706', '#e11d48'],
+            backgroundColor: [easyGrad, medGrad, hardGrad],
+            hoverBackgroundColor: ['#047857', '#b45309', '#be123c'],
             borderWidth: 0,
             borderRadius: 6,
             spacing: 3,
@@ -73,7 +69,7 @@ export default function DifficultyBreakdown({
         maintainAspectRatio: false,
         cutout: '72%',
         animation: {
-          duration: 500,
+          duration: 550,
           easing: 'easeOutQuart',
         },
         plugins: {
@@ -106,124 +102,97 @@ export default function DifficultyBreakdown({
         chartInstanceRef.current = null;
       }
     };
-  }, [chartReady, easyCount, mediumCount, hardCount, total, isLoading]);
+  }, [easyCount, mediumCount, hardCount, total, isLoading]);
 
   return (
-    <div className="dash-clean-card dash-diff-card" style={{ position: 'relative' }}>
+    <div className="dash-clean-card">
       <div className="dash-card-header">
         <div>
-          <h3 className="dash-card-title">Difficulty Distribution</h3>
-          <p className="dash-card-subtitle">Breakdown of interview questions across technical complexity tiers</p>
+          <h2 className="dash-card-title">Difficulty Distribution</h2>
+          <p className="dash-card-subtitle">Complexity breakdown across question bank</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="dash-count-badge">{total} Total Questions</span>
+        <span className="dash-count-badge">{total} Total Questions</span>
+      </div>
+
+      <div className="dash-doughnut-layout">
+        <div className="dash-doughnut-box" style={{ position: 'relative', width: '160px', height: '160px' }}>
+          <div
+            className="dash-canvas-holder"
+            style={{
+              visibility: (isLoading || total === 0) ? 'hidden' : 'visible',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            <canvas ref={canvasRef} />
+            <div className="dash-doughnut-center-info">
+              <span className="dash-center-number">{total}</span>
+              <span className="dash-center-label">Total</span>
+              <span className="dash-center-badge">3 Tiers</span>
+            </div>
+          </div>
+
+          {isLoading && (
+            <div className="dash-loading-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2 }}>
+              <span className="dash-spinner-ring" />
+            </div>
+          )}
+
+          {!isLoading && total === 0 && (
+            <div className="dash-empty-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2 }}>
+              <span>❓</span>
+              <p>No questions</p>
+            </div>
+          )}
+        </div>
+
+        {/* Breakdown List */}
+        <div className="dash-status-list">
+          {/* Easy */}
+          <div className="dash-status-item">
+            <div className="dash-status-item__left">
+              <span className="dash-status-dot dash-diff-dot--easy" />
+              <strong>Easy</strong>
+            </div>
+            <div className="dash-status-item__right">
+              <span className="dash-status-number">{easyCount}</span>
+              <span className="dash-status-pct dash-status-pct--emerald">{easyPct}%</span>
+            </div>
+          </div>
+
+          {/* Medium */}
+          <div className="dash-status-item">
+            <div className="dash-status-item__left">
+              <span className="dash-status-dot dash-diff-dot--med" />
+              <strong>Medium</strong>
+            </div>
+            <div className="dash-status-item__right">
+              <span className="dash-status-number">{mediumCount}</span>
+              <span className="dash-status-pct dash-status-pct--amber">{medPct}%</span>
+            </div>
+          </div>
+
+          {/* Hard */}
+          <div className="dash-status-item">
+            <div className="dash-status-item__left">
+              <span className="dash-status-dot dash-diff-dot--hard" />
+              <strong>Hard</strong>
+            </div>
+            <div className="dash-status-item__right">
+              <span className="dash-status-number">{hardCount}</span>
+              <span className="dash-status-pct dash-status-pct--rose">{hardPct}%</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style={{ position: 'relative' }}>
-        <div
-          style={{
-            visibility: (isLoading || total === 0) ? 'hidden' : 'visible',
-          }}
-        >
-          <div className="dash-diff-body">
-            {/* Left Column: Interactive Chart.js Donut Ring with Center Metric */}
-            <div className="dash-diff-chart-col">
-              <div className="dash-diff-doughnut-box">
-                <div className="dash-canvas-holder">
-                  <canvas ref={canvasRef} />
-                </div>
-                <div className="dash-diff-center-info">
-                  <span className="dash-diff-center-num">{total}</span>
-                  <span className="dash-diff-center-text">Total</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: 3 Rich Tier Cards Grid */}
-            <div className="dash-diff-cards-grid">
-              {/* Easy Card */}
-              <div className="dash-diff-tier-card dash-diff-tier-card--easy">
-                <div className="dash-diff-tier-head">
-                  <div className="dash-diff-tier-title-wrap">
-                    <span className="dash-diff-tier-dot dash-diff-tier-dot--easy" />
-                    <span className="dash-diff-tier-name">Easy</span>
-                  </div>
-                  <span className="dash-diff-tier-badge dash-diff-tier-badge--easy">{easyPct}%</span>
-                </div>
-                <div className="dash-diff-tier-main">
-                  <span className="dash-diff-tier-number">{easyCount}</span>
-                  <span className="dash-diff-tier-ratio">{easyCount} of {total} questions</span>
-                </div>
-                <div className="dash-diff-bar-track">
-                  <div className="dash-diff-bar-fill dash-diff-bar-fill--easy" style={{ width: `${easyPct}%` }} />
-                </div>
-                <div className="dash-diff-tier-footer">
-                  <span className="dash-diff-tier-desc">Foundational</span>
-                </div>
-              </div>
-
-              {/* Medium Card */}
-              <div className="dash-diff-tier-card dash-diff-tier-card--med">
-                <div className="dash-diff-tier-head">
-                  <div className="dash-diff-tier-title-wrap">
-                    <span className="dash-diff-tier-dot dash-diff-tier-dot--med" />
-                    <span className="dash-diff-tier-name">Medium</span>
-                  </div>
-                  <span className="dash-diff-tier-badge dash-diff-tier-badge--med">{medPct}%</span>
-                </div>
-                <div className="dash-diff-tier-main">
-                  <span className="dash-diff-tier-number">{mediumCount}</span>
-                  <span className="dash-diff-tier-ratio">{mediumCount} of {total} questions</span>
-                </div>
-                <div className="dash-diff-bar-track">
-                  <div className="dash-diff-bar-fill dash-diff-bar-fill--med" style={{ width: `${medPct}%` }} />
-                </div>
-                <div className="dash-diff-tier-footer">
-                  <span className="dash-diff-tier-desc">Intermediate</span>
-                </div>
-              </div>
-
-              {/* Hard Card */}
-              <div className="dash-diff-tier-card dash-diff-tier-card--hard">
-                <div className="dash-diff-tier-head">
-                  <div className="dash-diff-tier-title-wrap">
-                    <span className="dash-diff-tier-dot dash-diff-tier-dot--hard" />
-                    <span className="dash-diff-tier-name">Hard</span>
-                  </div>
-                  <span className="dash-diff-tier-badge dash-diff-tier-badge--hard">{hardPct}%</span>
-                </div>
-                <div className="dash-diff-tier-main">
-                  <span className="dash-diff-tier-number">{hardCount}</span>
-                  <span className="dash-diff-tier-ratio">{hardCount} of {total} questions</span>
-                </div>
-                <div className="dash-diff-bar-track">
-                  <div className="dash-diff-bar-fill dash-diff-bar-fill--hard" style={{ width: `${hardPct}%` }} />
-                </div>
-                <div className="dash-diff-tier-footer">
-                  <span className="dash-diff-tier-desc">Advanced</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {isLoading && (
-          <div className="dash-loading-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2, minHeight: '180px' }}>
-            <div className="dash-spinner-ring" />
-            <span>Analyzing difficulty tiers...</span>
-          </div>
-        )}
-
-        {!isLoading && total === 0 && (
-          <div className="dash-empty-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2, minHeight: '180px' }}>
-            <p>No questions currently recorded.</p>
-            <Link to="/questions" className="dash-secondary-btn" style={{ marginTop: '8px' }}>
-              Upload Questions
-            </Link>
-          </div>
-        )}
+      <div className="dash-progress-footer-strip">
+        <span className="dash-progress-footer-tasks">
+          Highest Tier: <strong>{easyCount >= mediumCount && easyCount >= hardCount ? 'Easy' : (mediumCount >= hardCount ? 'Medium' : 'Hard')}</strong>
+        </span>
+        <span className="dash-progress-footer-rate">
+          Tier Spread: <strong>{total > 0 ? 'Active' : 'Empty'}</strong>
+        </span>
       </div>
     </div>
   );

@@ -380,7 +380,7 @@
   color: #64748b;
   white-space: nowrap;
   line-height: 24px;
-  vertical-align: middle !important;
+  vertical-align: top;
 }
 
 .qb-diff-badge {
@@ -1778,31 +1778,32 @@
   width: 140px;
   min-width: 140px;
   max-width: 140px;
-  text-align: center !important;
-  vertical-align: middle !important;
-  padding: 0.85rem 0.5rem !important;
+  text-align: center;
+  vertical-align: top;
+  padding: 1rem 0.75rem;
 }
 
 .qb-table th.qb-col-action {
-  text-align: center !important;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .qb-actions-group {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   white-space: nowrap;
-  vertical-align: middle;
+  height: 24px;
 }
 
 .qb-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease;

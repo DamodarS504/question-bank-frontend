@@ -1,10 +1,11 @@
 /**
  * src/pages/Dashboard/components/EmployeeStatusChart.jsx
- * Clean, minimal Chart.js Doughnut Chart for Active vs Inactive Employees.
+ * High-aesthetic Doughnut Chart for Active vs Inactive Employees.
+ * Uses local Chart.js bundle with canvas gradients, center stats, and zero network dependency.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { loadChartJs } from '../../../utils/chartLoader';
+import Chart from 'chart.js/auto';
 
 export default function EmployeeStatusChart({
   activeCount = 0,
@@ -14,37 +15,19 @@ export default function EmployeeStatusChart({
 }) {
   const canvasRef = useRef(null);
   const chartInstanceRef = useRef(null);
-  const [chartReady, setChartReady] = useState(false);
 
   const total = activeCount + inactiveCount;
   const activePercent = total > 0 ? Math.round((activeCount / total) * 100) : 0;
   const inactivePercent = total > 0 ? Math.max(0, 100 - activePercent) : 0;
 
   useEffect(() => {
-    let mounted = true;
-    loadChartJs()
-      .then(() => {
-        if (mounted) setChartReady(true);
-      })
-      .catch((err) => {
-        console.error('Failed to load Chart.js for doughnut:', err);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!chartReady || !canvasRef.current || total === 0 || isLoading) return;
+    if (!canvasRef.current || total === 0 || isLoading) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const ChartClass = window.Chart;
-    if (!ChartClass) return;
-
-    const existingChart = ChartClass.getChart(canvas);
+    const existingChart = Chart.getChart(canvas);
     if (existingChart) {
       existingChart.destroy();
     }
@@ -53,18 +36,27 @@ export default function EmployeeStatusChart({
       chartInstanceRef.current = null;
     }
 
-    chartInstanceRef.current = new ChartClass(ctx, {
+    // Create gradient arcs
+    const activeGrad = ctx.createLinearGradient(0, 0, 160, 160);
+    activeGrad.addColorStop(0, '#34d399');
+    activeGrad.addColorStop(1, '#059669');
+
+    const inactiveGrad = ctx.createLinearGradient(0, 0, 160, 160);
+    inactiveGrad.addColorStop(0, '#fbbf24');
+    inactiveGrad.addColorStop(1, '#d97706');
+
+    chartInstanceRef.current = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: ['Active', 'Inactive'],
         datasets: [
           {
             data: [activeCount, inactiveCount],
-            backgroundColor: ['#10b981', '#f59e0b'],
-            hoverBackgroundColor: ['#059669', '#d97706'],
+            backgroundColor: [activeGrad, inactiveGrad],
+            hoverBackgroundColor: ['#047857', '#b45309'],
             borderWidth: 0,
-            borderRadius: 4,
-            spacing: 2,
+            borderRadius: 5,
+            spacing: 3,
           },
         ],
       },
@@ -73,7 +65,7 @@ export default function EmployeeStatusChart({
         maintainAspectRatio: false,
         cutout: '72%',
         animation: {
-          duration: 500,
+          duration: 550,
           easing: 'easeOutQuart',
         },
         plugins: {
@@ -106,12 +98,15 @@ export default function EmployeeStatusChart({
         chartInstanceRef.current = null;
       }
     };
-  }, [chartReady, activeCount, inactiveCount, total, isLoading]);
+  }, [activeCount, inactiveCount, total, isLoading]);
 
   return (
     <div className="dash-clean-card">
       <div className="dash-card-header">
-        <h2 className="dash-card-title">Employee Status</h2>
+        <div>
+          <h2 className="dash-card-title">Employee Status</h2>
+          <p className="dash-card-subtitle">Active vs inactive team presence</p>
+        </div>
         <Link to="/employees" className="dash-link-btn">
           View All &rarr;
         </Link>
@@ -122,7 +117,7 @@ export default function EmployeeStatusChart({
           <div
             className="dash-canvas-holder"
             style={{
-              visibility: (isLoading || !chartReady || total === 0) ? 'hidden' : 'visible',
+              visibility: (isLoading || total === 0) ? 'hidden' : 'visible',
               width: '100%',
               height: '100%',
             }}
@@ -135,13 +130,13 @@ export default function EmployeeStatusChart({
             </div>
           </div>
 
-          {(isLoading || !chartReady) && (
+          {isLoading && (
             <div className="dash-loading-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2 }}>
               <span className="dash-spinner-ring" />
             </div>
           )}
 
-          {!isLoading && chartReady && total === 0 && (
+          {!isLoading && total === 0 && (
             <div className="dash-empty-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2 }}>
               <span>👥</span>
               <p>No employees</p>

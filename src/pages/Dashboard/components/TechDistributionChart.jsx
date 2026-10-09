@@ -1,9 +1,10 @@
 /**
  * src/pages/Dashboard/components/TechDistributionChart.jsx
- * Clean, minimal Chart.js Bar Chart for Technology-Wise Questions & Assignments.
+ * High-aesthetic Bar Chart for Technology-Wise Questions & Assignments.
+ * Uses local Chart.js bundle with custom canvas gradients, rounded ends, and zero network lag.
  */
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { loadChartJs } from '../../../utils/chartLoader';
+import Chart from 'chart.js/auto';
 
 export default function TechDistributionChart({
   techData = [],
@@ -12,12 +13,16 @@ export default function TechDistributionChart({
   const canvasRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const [activeView, setActiveView] = useState('grouped'); // 'grouped' | 'total' | 'assigned'
-  const [chartReady, setChartReady] = useState(false);
 
   // Normalize data (sort and pick top 8 technologies)
   const chartData = useMemo(() => {
     if (!techData || techData.length === 0) return [];
     return [...techData]
+      .map((d) => ({
+        technology: d.technology,
+        total: d.total_questions ?? d.total ?? 0,
+        assigned: d.assigned_questions ?? d.assigned ?? 0,
+      }))
       .sort((a, b) => (b.total || 0) - (a.total || 0))
       .slice(0, 8);
   }, [techData]);
@@ -32,30 +37,13 @@ export default function TechDistributionChart({
   );
 
   useEffect(() => {
-    let mounted = true;
-    loadChartJs()
-      .then(() => {
-        if (mounted) setChartReady(true);
-      })
-      .catch((err) => {
-        console.error('Failed to load Chart.js:', err);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!chartReady || !canvasRef.current || chartData.length === 0 || isLoading) return;
+    if (!canvasRef.current || chartData.length === 0 || isLoading) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const ChartClass = window.Chart;
-    if (!ChartClass) return;
-
-    const existingChart = ChartClass.getChart(canvas);
+    const existingChart = Chart.getChart(canvas);
     if (existingChart) {
       existingChart.destroy();
     }
@@ -63,6 +51,14 @@ export default function TechDistributionChart({
       chartInstanceRef.current.destroy();
       chartInstanceRef.current = null;
     }
+
+    const tealGradient = ctx.createLinearGradient(0, 0, 0, 240);
+    tealGradient.addColorStop(0, '#14b8a6');
+    tealGradient.addColorStop(1, '#0d9488');
+
+    const indigoGradient = ctx.createLinearGradient(0, 0, 0, 240);
+    indigoGradient.addColorStop(0, '#818cf8');
+    indigoGradient.addColorStop(1, '#4f46e5');
 
     const labels = chartData.map((d) => d.technology);
     const totals = chartData.map((d) => d.total || 0);
@@ -75,7 +71,7 @@ export default function TechDistributionChart({
         {
           label: 'Total Questions',
           data: totals,
-          backgroundColor: '#0d9488',
+          backgroundColor: tealGradient,
           hoverBackgroundColor: '#0f766e',
           borderRadius: 6,
           borderSkipped: false,
@@ -86,8 +82,8 @@ export default function TechDistributionChart({
         {
           label: 'Assigned',
           data: assigned,
-          backgroundColor: '#6366f1',
-          hoverBackgroundColor: '#4f46e5',
+          backgroundColor: indigoGradient,
+          hoverBackgroundColor: '#4338ca',
           borderRadius: 6,
           borderSkipped: false,
           maxBarThickness: 32,
@@ -100,11 +96,11 @@ export default function TechDistributionChart({
         {
           label: 'Total Questions',
           data: totals,
-          backgroundColor: '#0d9488',
+          backgroundColor: tealGradient,
           hoverBackgroundColor: '#0f766e',
-          borderRadius: 6,
+          borderRadius: 8,
           borderSkipped: false,
-          maxBarThickness: 44,
+          maxBarThickness: 46,
         },
       ];
     } else {
@@ -112,11 +108,11 @@ export default function TechDistributionChart({
         {
           label: 'Assigned Questions',
           data: assigned,
-          backgroundColor: '#6366f1',
-          hoverBackgroundColor: '#4f46e5',
-          borderRadius: 6,
+          backgroundColor: indigoGradient,
+          hoverBackgroundColor: '#4338ca',
+          borderRadius: 8,
           borderSkipped: false,
-          maxBarThickness: 44,
+          maxBarThickness: 46,
         },
       ];
     }
@@ -126,7 +122,7 @@ export default function TechDistributionChart({
       4
     );
 
-    chartInstanceRef.current = new ChartClass(ctx, {
+    chartInstanceRef.current = new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
@@ -136,15 +132,15 @@ export default function TechDistributionChart({
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-          duration: 500,
+          duration: 550,
           easing: 'easeOutQuart',
         },
         layout: {
           padding: {
             top: 10,
-            bottom: 5,
-            left: 5,
-            right: 10,
+            bottom: 4,
+            left: 4,
+            right: 8,
           },
         },
         scales: {
@@ -170,6 +166,7 @@ export default function TechDistributionChart({
             suggestedMax: Math.ceil(maxVal * 1.15),
             grid: {
               color: '#f1f5f9',
+              drawBorder: false,
             },
             ticks: {
               stepSize: 1,
@@ -210,7 +207,7 @@ export default function TechDistributionChart({
               label: (context) => {
                 const label = context.dataset.label || '';
                 const val = context.parsed.y;
-                return ` ${label}: ${val}`;
+                return ` ${label}: ${val} questions`;
               },
             },
           },
@@ -224,12 +221,15 @@ export default function TechDistributionChart({
         chartInstanceRef.current = null;
       }
     };
-  }, [chartReady, activeView, chartData, isLoading]);
+  }, [activeView, chartData, isLoading]);
 
   return (
     <div className="dash-clean-card">
       <div className="dash-card-header">
-        <h2 className="dash-card-title">Questions by Technology</h2>
+        <div>
+          <h2 className="dash-card-title">Questions by Technology</h2>
+          <p className="dash-card-subtitle">Distribution across technical stacks</p>
+        </div>
 
         <div className="dash-btn-group" role="tablist">
           <button
@@ -271,29 +271,38 @@ export default function TechDistributionChart({
         )}
       </div>
 
-      <div className="dash-chartjs-wrapper" style={{ position: 'relative' }}>
+      <div className="dash-chartjs-wrapper" style={{ position: 'relative', height: '175px' }}>
         <canvas
           ref={canvasRef}
           style={{
-            visibility: (isLoading || !chartReady || chartData.length === 0) ? 'hidden' : 'visible',
+            visibility: (isLoading || chartData.length === 0) ? 'hidden' : 'visible',
             width: '100%',
             height: '100%',
           }}
         />
 
-        {(isLoading || !chartReady) && (
+        {isLoading && (
           <div className="dash-loading-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2 }}>
             <span className="dash-spinner-ring" />
             <p>Loading chart...</p>
           </div>
         )}
 
-        {!isLoading && chartReady && chartData.length === 0 && (
+        {!isLoading && chartData.length === 0 && (
           <div className="dash-empty-state" style={{ position: 'absolute', inset: 0, background: '#ffffff', zIndex: 2 }}>
             <span>📊</span>
             <p>No questions recorded</p>
           </div>
         )}
+      </div>
+
+      <div className="dash-progress-footer-strip">
+        <span className="dash-progress-footer-tasks">
+          Active Stacks: <strong>{chartData.length}</strong>
+        </span>
+        <span className="dash-progress-footer-rate">
+          Total Assigned: <strong>{totalAssigned}</strong>
+        </span>
       </div>
     </div>
   );

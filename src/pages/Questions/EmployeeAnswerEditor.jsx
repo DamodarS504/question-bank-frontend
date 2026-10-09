@@ -8,7 +8,6 @@ import {
   useUpdateEmployeeAnswerMutation,
   useCreateRatingMutation
 } from '../../features/questions/questionBankApi';
-import { toast } from "react-toastify";
 
 function getAnswerRecords(response) {
   return Array.isArray(response) ? response : [];
