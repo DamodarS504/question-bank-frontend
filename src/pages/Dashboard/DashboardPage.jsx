@@ -1,7 +1,3 @@
-/**
- * src/pages/Dashboard/DashboardPage.jsx
- * Clean, minimal Admin Dashboard integrated with the /api/v1/dashboard/admin-summary endpoint.
- */
 import { useMemo, useCallback } from 'react';
 import DashboardLayout from './DashboardLayout';
 import { getUserRole } from '../../features/auth/authSlice';
@@ -16,18 +12,6 @@ import EmployeeStatusChart from './components/EmployeeStatusChart';
 import DifficultyBreakdown from './components/DifficultyBreakdown';
 import OverallProgressChart from './components/OverallProgressChart';
 import './Dashboard.css';
-
-// Baseline demo distribution if database has 0 records
-const DEFAULT_TECH_DISTRIBUTION = [
-  { technology: 'Python', total: 32, assigned: 20 },
-  { technology: 'React', total: 26, assigned: 18 },
-  { technology: 'Java', total: 22, assigned: 14 },
-  { technology: 'AWS Cloud', total: 16, assigned: 10 },
-  { technology: 'JavaScript', total: 14, assigned: 11 },
-  { technology: 'SQL & DB', total: 12, assigned: 8 },
-  { technology: 'DevOps', total: 10, assigned: 6 },
-  { technology: 'System Design', total: 8, assigned: 5 },
-];
 
 export default function DashboardPage() {
   const { data: profile } = useGetProfileQuery();
@@ -119,7 +103,7 @@ export default function DashboardPage() {
         assigned: item.assigned_questions ?? item.assigned ?? 0,
       }));
     }
-    return DEFAULT_TECH_DISTRIBUTION;
+    return [];
   }, [summary]);
 
   /* ----------------------------------------------------

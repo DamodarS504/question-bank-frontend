@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { expireSession } from './authSlice';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -21,9 +22,24 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+const baseQueryWithAuthHandling = async (args, api, extraOptions) => {
+  const result = await baseQuery(args, api, extraOptions);
+
+  if (
+    result.error?.status === 401
+    && api.endpoint !== 'login'
+    && (api.endpoint === 'getProfile' || api.getState().auth?.isAuthenticated)
+  ) {
+    api.dispatch(expireSession());
+    api.dispatch(authApi.util.resetApiState());
+  }
+
+  return result;
+};
+
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery,
+  baseQuery: baseQueryWithAuthHandling,
   tagTypes: ['Profile', 'Questions', 'Employees', 'Assignments', 'EmployeeAnswers'],
   endpoints: (builder) => ({
     signup: builder.mutation({

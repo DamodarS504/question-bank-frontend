@@ -3,7 +3,8 @@
  * Application router — maps URL paths to page-level components.
  * No layout or UI logic lives here.
  */
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import LandingPage from './pages/Landing/LandingPage';
 import LoginPage   from './pages/LoginPage';
 import SignupPage  from './pages/SignupPage';
@@ -16,6 +17,13 @@ import BookmarksPage from './pages/Bookmarks/BookmarksPage';
 import { ForgotPasswordPage, ResetPasswordPage } from './pages/PasswordRecoveryPages';
 
 export default function App() {
+  const sessionExpired = useSelector((state) => state.auth.sessionExpired);
+  const location = useLocation();
+
+  if (sessionExpired && location.pathname !== '/login') {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <Routes>
       <Route path="/"       element={<LandingPage />} />

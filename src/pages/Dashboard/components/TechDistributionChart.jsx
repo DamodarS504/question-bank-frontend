@@ -271,7 +271,7 @@ export default function TechDistributionChart({
         )}
       </div>
 
-      <div className="dash-chartjs-wrapper" style={{ position: 'relative', height: '175px' }}>
+      <div className="dash-chartjs-wrapper dash-tech-chart-wrapper" style={{ position: 'relative', height: '175px' }}>
         <canvas
           ref={canvasRef}
           style={{

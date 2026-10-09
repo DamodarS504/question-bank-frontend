@@ -5,6 +5,7 @@ const initialState = {
   tokenType: null,
   user: null,
   isAuthenticated: false,
+  sessionExpired: false,
 };
 
 export function getUserRole(user) {
@@ -25,19 +26,29 @@ const authSlice = createSlice({
       state.tokenType = tokenType;
       state.user = user;
       state.isAuthenticated = true;
+      state.sessionExpired = false;
     },
     setUser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      state.sessionExpired = false;
     },
     logout: (state) => {
       state.accessToken = null;
       state.tokenType = null;
       state.user = null;
       state.isAuthenticated = false;
+      state.sessionExpired = false;
+    },
+    expireSession: (state) => {
+      state.accessToken = null;
+      state.tokenType = null;
+      state.user = null;
+      state.isAuthenticated = false;
+      state.sessionExpired = true;
     },
   },
 });
 
-export const { setCredentials, setUser, logout } = authSlice.actions;
+export const { setCredentials, setUser, logout, expireSession } = authSlice.actions;
 export default authSlice.reducer;
